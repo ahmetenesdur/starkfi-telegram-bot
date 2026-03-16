@@ -15,7 +15,13 @@ export async function modelCommand(ctx: BotContext): Promise<void> {
 
 	const modelButtons = models
 		.filter((m) => m.id !== session.modelName)
-		.map((m) => Markup.button.callback(`${m.label} — ${m.description}`, `switchmodel:${m.id}`));
+		.map((m) => [
+			Markup.button.callback(`${m.label} — ${m.description}`, `switchmodel:${m.id}`),
+		]);
+
+	const changeProviderRow = [
+		Markup.button.callback("Change Provider (new key required)", "action:setup"),
+	];
 
 	await ctx.reply(
 		`*Switch Model*\n\n` +
@@ -25,24 +31,7 @@ export async function modelCommand(ctx: BotContext): Promise<void> {
 				: "No other models available for this provider."),
 		{
 			parse_mode: "Markdown",
-			...(modelButtons.length > 0
-				? Markup.inlineKeyboard([
-						...modelButtons.map((b) => [b]),
-						[
-							Markup.button.callback(
-								"Change Provider (new key required)",
-								"action:setup"
-							),
-						],
-					])
-				: Markup.inlineKeyboard([
-						[
-							Markup.button.callback(
-								"Change Provider (new key required)",
-								"action:setup"
-							),
-						],
-					])),
+			...Markup.inlineKeyboard([...modelButtons, changeProviderRow]),
 		}
 	);
 }
