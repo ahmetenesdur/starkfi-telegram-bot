@@ -94,6 +94,8 @@ Each user gets a dedicated MCP child process running with an isolated `HOME` dir
 User sends /setup
   → Bot shows provider selection (inline keyboard)
   → User picks provider (callback query)
+  → Bot shows model selection for chosen provider
+  → User picks model (callback query)
   → Bot asks for API key
   → User sends API key
   → Bot encrypts key, stores in SQLite, deletes user's message

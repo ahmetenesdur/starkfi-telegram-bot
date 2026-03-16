@@ -14,4 +14,4 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
-CMD ["node", "dist/index.js"]
+CMD ["node", "--env-file=.env", "dist/index.js"]

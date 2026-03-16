@@ -42,7 +42,7 @@ For production deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 - Node.js 18+
 - A Telegram bot token from [@BotFather](https://t.me/BotFather)
-- An API key from at least one AI provider (OpenAI, Anthropic, or Google)
+- An API key from at least one AI provider (OpenAI, Claude, or Gemini)
 
 ## License
 

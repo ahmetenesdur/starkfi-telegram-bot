@@ -11,8 +11,9 @@ Displays the welcome message and onboarding steps. Shows inline buttons for quic
 Starts the AI model configuration flow:
 
 1. User picks a provider (OpenAI, Claude, or Gemini).
-2. User sends their API key.
-3. The key is encrypted and stored. The user's message containing the key is deleted.
+2. User picks a model from the selected provider.
+3. User sends their API key.
+4. The key is encrypted and stored. The user's message containing the key is deleted.
 
 ### `/auth`
 
@@ -25,7 +26,10 @@ Connects a StarkFi wallet via email OTP:
 
 ### `/model`
 
-Switches the AI provider. Shows the current provider and model, then presents the provider selection keyboard. Requires re-entering the API key for the new provider.
+Switches the AI model or provider. Shows the current provider and model, then:
+
+- **Same provider:** Lists other available models. Switching does not require re-entering the API key.
+- **Different provider:** Redirects to `/setup` for full reconfiguration (new key required).
 
 ## Session Commands
 
