@@ -26,7 +26,7 @@ async function main(): Promise<void> {
 
 	const bot = createBot(config, store, mcpPool, dataDir);
 
-	// process.once prevents double-shutdown on repeated signals
+	// Guard against double-shutdown on repeated signals
 	let isShuttingDown = false;
 
 	async function shutdown(signal: string): Promise<void> {

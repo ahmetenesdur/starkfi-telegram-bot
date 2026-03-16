@@ -25,14 +25,14 @@ export function createInteractionHandlers(
 		try {
 			await ctx.answerCbQuery();
 
-			// Provider selection during setup: setup:<provider>
+			// Provider selection: setup:<provider>
 			if (data.startsWith("setup:")) {
 				const provider = data.split(":")[1] as Provider;
 				await handleProviderSelection(ctx, provider);
 				return;
 			}
 
-			// Model selection during setup: setupmodel:<provider>:<modelId>
+			// Model selection: setupmodel:<provider>:<modelId>
 			if (data.startsWith("setupmodel:")) {
 				const parts = data.split(":");
 				const provider = parts[1] as Provider;
@@ -41,7 +41,7 @@ export function createInteractionHandlers(
 				return;
 			}
 
-			// In-provider model switching: switchmodel:<modelId>
+			// In-provider model switch: switchmodel:<modelId>
 			if (data.startsWith("switchmodel:")) {
 				const modelId = data.split(":")[1];
 				const userId = ctx.from!.id.toString();

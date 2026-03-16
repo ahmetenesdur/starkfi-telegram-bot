@@ -59,7 +59,7 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 			ctx.store.updateStarkfiAddr(userId, auth.walletAddress);
 			ctx.store.clearAuthState(userId);
 
-			// Kill existing MCP so it restarts with new session credentials
+			// Restart MCP with new session credentials
 			await mcpPool.removeClient(userId);
 
 			await ctx.reply(

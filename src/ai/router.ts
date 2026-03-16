@@ -43,7 +43,7 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			stopWhen: stepCountIs(10),
 		});
 
-		// Log tool errors from steps (silent failures should not go unnoticed)
+		// Surface tool errors that would otherwise fail silently
 		const toolErrors = result.steps.flatMap((step) =>
 			step.content.filter(
 				(part): part is Extract<typeof part, { type: "tool-error" }> =>

@@ -78,7 +78,7 @@ export async function handleApiKeyInput(
 	ctx.store.upsert(userId, provider, apiKey, finalModel);
 	ctx.store.clearAuthState(userId);
 
-	// Delete user's message containing the plain-text API key
+	// Delete the message containing the plain-text key
 	try {
 		await ctx.deleteMessage();
 	} catch {

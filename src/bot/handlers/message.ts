@@ -3,7 +3,7 @@ import type { McpProcessPool } from "../../mcp/pool.js";
 import type { MessageQueue } from "../middleware/queue.js";
 import type { Config } from "../../lib/config.js";
 import { processMessage } from "../../ai/router.js";
-import { chunkMessage } from "../../lib/format.js";
+import { chunkMessage, sanitizeForTelegram } from "../../lib/format.js";
 import { logger } from "../../lib/logger.js";
 
 export function createMessageHandler(
@@ -23,7 +23,7 @@ export function createMessageHandler(
 		await messageQueue.enqueue(userId, async () => {
 			await ctx.sendChatAction("typing");
 
-			// Keep "typing..." visible during long AI/MCP operations
+			// Repeat "typing..." indicator during long AI/MCP calls
 			const typingInterval = setInterval(() => {
 				ctx.sendChatAction("typing").catch(() => {
 					/* ignore — best-effort */
@@ -45,7 +45,8 @@ export function createMessageHandler(
 
 				ctx.store.updateHistory(userId, result.history, config.maxHistory);
 
-				const chunks = chunkMessage(result.text);
+				const sanitized = sanitizeForTelegram(result.text);
+				const chunks = chunkMessage(sanitized);
 				for (const chunk of chunks) {
 					// Try Markdown first, fall back to plain text
 					try {

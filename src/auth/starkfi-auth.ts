@@ -50,7 +50,7 @@ export async function verifyOtp(
 	return (await res.json()) as StarkfiAuthResult;
 }
 
-// Replicates env-paths logic per platform for isolated user HOMEs
+// Platform-specific data directory for isolated user HOMEs
 function getStarkfiDataDir(userHome: string): string {
 	if (process.platform === "darwin") {
 		return join(userHome, "Library", "Application Support", "starkfi-nodejs");
