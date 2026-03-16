@@ -1,3 +1,4 @@
+import { Markup } from "telegraf";
 import type { BotContext } from "../middleware/session.js";
 import type { Config } from "../../lib/config.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
@@ -79,6 +80,44 @@ export function createInteractionHandlers(
 			}
 			if (data === "action:help") {
 				await helpCommand(ctx);
+				return;
+			}
+			if (data === "action:about") {
+				await ctx.reply(
+					"*About StarkFi*\n\n" +
+						"StarkFi is an AI-native DeFi toolkit for *Starknet*, " +
+						"built on the Starkzap SDK.\n\n" +
+						"*What's Inside:*\n" +
+						"• CLI with 30+ commands across 10 groups\n" +
+						"• MCP server with 27 tools for AI agents\n" +
+						"• 10 Agent Skills for autonomous DeFi\n\n" +
+						"*Key Features:*\n" +
+						"• DEX-aggregated swaps via Fibrous\n" +
+						"• Multi-token swaps in a single call\n" +
+						"• Staking across Karnot, Fibrous, and more\n" +
+						"• Lending & borrowing on Vesu V2\n" +
+						"• Gas abstraction via AVNU Paymaster\n" +
+						"• Atomic multicalls for batch operations\n\n" +
+						"This bot is a live example of what you can build with StarkFi's MCP server. " +
+						"Explore the links below to learn more!",
+					{
+						parse_mode: "Markdown",
+						...Markup.inlineKeyboard([
+							[
+								Markup.button.url("🌐 Website", "https://starkfi.app"),
+								Markup.button.url("📖 Docs", "https://docs.starkfi.app/docs"),
+							],
+							[
+								Markup.button.url(
+									"💻 GitHub",
+									"https://github.com/ahmetenesdur/starkfi"
+								),
+								Markup.button.url("📦 npm", "https://npmjs.com/package/starkfi"),
+							],
+							[Markup.button.url("🐦 Twitter/X", "https://x.com/starkfiapp")],
+						]),
+					}
+				);
 				return;
 			}
 

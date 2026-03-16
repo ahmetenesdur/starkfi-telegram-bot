@@ -18,7 +18,10 @@ export async function startCommand(ctx: BotContext): Promise<void> {
 			...Markup.inlineKeyboard([
 				[Markup.button.callback("Setup AI Model", "action:setup")],
 				[Markup.button.callback("Log In to StarkFi", "action:auth")],
-				[Markup.button.callback("Help", "action:help")],
+				[
+					Markup.button.callback("Help", "action:help"),
+					Markup.button.callback("About StarkFi", "action:about"),
+				],
 			]),
 		}
 	);
