@@ -1,5 +1,5 @@
 import type { BotContext } from "../middleware/session.js";
-import { PROVIDER_LABELS } from "../../session/types.js";
+import { MODEL_OPTIONS, PROVIDER_LABELS } from "../../session/types.js";
 import { truncateAddress } from "../../lib/format.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
 
@@ -22,10 +22,14 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 			? `\`${truncateAddress(session.starkfiAddr)}\``
 			: "Not connected (/auth)";
 
+		const models = MODEL_OPTIONS[session.provider];
+		const modelLabel =
+			models.find((m) => m.id === session.modelName)?.label ?? session.modelName;
+
 		await ctx.reply(
 			"*Status*\n\n" +
-				`• AI Provider: *${PROVIDER_LABELS[session.provider]}*\n` +
-				`• Model: \`${session.modelName}\`\n` +
+				`• Provider: *${PROVIDER_LABELS[session.provider]}*\n` +
+				`• Model: \`${modelLabel}\`\n` +
 				`• Wallet: ${walletLine}\n` +
 				`• History: ${session.history.length} messages\n` +
 				`• Active MCP: ${mcpPool.activeCount} processes`,

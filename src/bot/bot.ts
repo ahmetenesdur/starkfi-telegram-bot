@@ -50,7 +50,7 @@ export function createBot(
 		if (!ctx.userSession) {
 			await ctx.reply(
 				"You haven't set up your AI model yet.\n\n" +
-					"Use /setup to choose your AI provider and enter your API key."
+					"Use /setup to choose your provider, model, and enter your API key."
 			);
 			return;
 		}

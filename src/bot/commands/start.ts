@@ -9,7 +9,7 @@ export async function startCommand(ctx: BotContext): Promise<void> {
 			"I'm your AI-powered DeFi assistant for *Starknet*. " +
 			"I can help you swap tokens, stake, lend, and manage your portfolio — all through natural language.\n\n" +
 			"*Getting Started:*\n" +
-			"1. Use /setup to choose your AI model and enter your API key\n" +
+			"1. Use /setup to choose your AI provider and model\n" +
 			"2. Use /auth to connect your StarkFi wallet\n" +
 			'3. Start chatting! Try: _"What\'s my balance?"_\n\n' +
 			"Use /help to see all available commands.",

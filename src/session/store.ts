@@ -117,6 +117,12 @@ export class SessionStore {
 			.run(Date.now(), userId);
 	}
 
+	updateModelName(userId: string, modelName: string): void {
+		this.db
+			.prepare(`UPDATE sessions SET model_name = ?, updated_at = ? WHERE user_id = ?`)
+			.run(modelName, Date.now(), userId);
+	}
+
 	deleteApiKey(userId: string): void {
 		this.db.prepare(`DELETE FROM sessions WHERE user_id = ?`).run(userId);
 	}

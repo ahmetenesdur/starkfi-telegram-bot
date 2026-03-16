@@ -1,12 +1,10 @@
 import type { BotContext } from "../middleware/session.js";
 import type { Config } from "../../lib/config.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
-import { handleProviderSelection } from "../commands/setup.js";
-import { createEmailHandler, createOtpHandler } from "../commands/auth.js";
-import { setupCommand } from "../commands/setup.js";
+import { handleProviderSelection, handleModelSelection, setupCommand } from "../commands/setup.js";
+import { createEmailHandler, createOtpHandler, createAuthCommand } from "../commands/auth.js";
 import { helpCommand } from "../commands/help.js";
-import { createAuthCommand } from "../commands/auth.js";
-import type { Provider } from "../../session/types.js";
+import { MODEL_OPTIONS, type Provider } from "../../session/types.js";
 import { logger } from "../../lib/logger.js";
 
 export function createInteractionHandlers(
@@ -27,9 +25,47 @@ export function createInteractionHandlers(
 		try {
 			await ctx.answerCbQuery();
 
+			// Provider selection during setup: setup:<provider>
 			if (data.startsWith("setup:")) {
 				const provider = data.split(":")[1] as Provider;
 				await handleProviderSelection(ctx, provider);
+				return;
+			}
+
+			// Model selection during setup: setupmodel:<provider>:<modelId>
+			if (data.startsWith("setupmodel:")) {
+				const parts = data.split(":");
+				const provider = parts[1] as Provider;
+				const modelId = parts[2];
+				await handleModelSelection(ctx, provider, modelId);
+				return;
+			}
+
+			// In-provider model switching: switchmodel:<modelId>
+			if (data.startsWith("switchmodel:")) {
+				const modelId = data.split(":")[1];
+				const userId = ctx.from!.id.toString();
+				const session = ctx.userSession;
+
+				if (!session) {
+					await ctx.reply("You haven't set up yet. Use /setup first.");
+					return;
+				}
+
+				const models = MODEL_OPTIONS[session.provider];
+				const model = models.find((m) => m.id === modelId);
+
+				if (!model) {
+					await ctx.reply("Unknown model. Use /model to see available options.");
+					return;
+				}
+
+				ctx.store.updateModelName(userId, modelId);
+
+				await ctx.editMessageText(
+					`*Model Updated* ✓\n\n` + `Now using: \`${model.label}\``,
+					{ parse_mode: "Markdown" }
+				);
 				return;
 			}
 
@@ -68,6 +104,7 @@ export function createInteractionHandlers(
 			const state = JSON.parse(stateRaw) as {
 				step: string;
 				provider?: Provider;
+				modelId?: string;
 				email?: string;
 			};
 
@@ -92,7 +129,7 @@ export function createInteractionHandlers(
 
 			if (state.step === "awaiting_api_key" && state.provider) {
 				const { handleApiKeyInput } = await import("../commands/setup.js");
-				await handleApiKeyInput(ctx, state.provider, text.trim());
+				await handleApiKeyInput(ctx, state.provider, text.trim(), state.modelId);
 				return true;
 			}
 		} catch {
