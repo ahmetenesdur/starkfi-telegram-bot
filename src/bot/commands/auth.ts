@@ -13,8 +13,7 @@ export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 		ctx.store.setAuthState(userId, JSON.stringify({ step: "awaiting_email" }));
 
 		await ctx.reply(
-			"*StarkFi Wallet Login*\n\n" +
-				"Enter your email address to connect your Starknet wallet:",
+			"*StarkFi Login*\n\n" + "Enter your email address to log in to your StarkFi account:",
 			{ parse_mode: "Markdown" }
 		);
 	};
@@ -65,7 +64,7 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 			await mcpPool.removeClient(userId);
 
 			await ctx.reply(
-				"*Wallet Connected*\n\n" +
+				"*Logged In* ✓\n\n" +
 					`• Address: \`${truncateAddress(auth.walletAddress)}\`\n` +
 					"• Network: mainnet\n\n" +
 					"You're all set! Try: _\"What's my balance?\"_",

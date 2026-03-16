@@ -5,7 +5,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 		"*StarkFi Bot — Help*\n\n" +
 			"*Setup Commands:*\n" +
 			"• /setup — Configure AI provider, model, and API key\n" +
-			"• /auth — Connect StarkFi wallet\n" +
+			"• /auth — Log in to StarkFi\n" +
 			"• /model — Switch AI model or provider\n" +
 			"• /status — View current session info\n\n" +
 			"*Session Commands:*\n" +

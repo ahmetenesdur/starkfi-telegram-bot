@@ -92,7 +92,7 @@ export async function handleApiKeyInput(
 		"*Setup Complete* ✓\n\n" +
 			`• Provider: *${PROVIDER_LABELS[provider]}*\n` +
 			`• Model: \`${model?.label ?? finalModel}\`\n\n` +
-			"Next step: Use /auth to connect your StarkFi wallet.\n" +
+			"Next step: Use /auth to log in to your StarkFi account.\n" +
 			'Or just start chatting — try: _"What can you do?"_',
 		{ parse_mode: "Markdown" }
 	);

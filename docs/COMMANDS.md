@@ -17,7 +17,7 @@ Starts the AI model configuration flow:
 
 ### `/auth`
 
-Connects a StarkFi wallet via email OTP:
+Logs in to StarkFi via email OTP:
 
 1. User enters their email address.
 2. StarkFi sends a verification code.
@@ -38,7 +38,7 @@ Switches the AI model or provider. Shows the current provider and model, then:
 Displays current session state:
 
 - AI provider and model name
-- Connected wallet address (truncated)
+- Wallet address (truncated)
 - Conversation history length
 - Active MCP process count
 
