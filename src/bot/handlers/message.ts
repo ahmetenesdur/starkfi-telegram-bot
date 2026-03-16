@@ -23,6 +23,13 @@ export function createMessageHandler(
 		await messageQueue.enqueue(userId, async () => {
 			await ctx.sendChatAction("typing");
 
+			// Keep "typing..." visible during long AI/MCP operations
+			const typingInterval = setInterval(() => {
+				ctx.sendChatAction("typing").catch(() => {
+					/* ignore — best-effort */
+				});
+			}, 4_000);
+
 			try {
 				const apiKey = ctx.store.decryptApiKey(session);
 				const mcpClient = await mcpPool.getClient(userId);
@@ -40,12 +47,19 @@ export function createMessageHandler(
 
 				const chunks = chunkMessage(result.text);
 				for (const chunk of chunks) {
-					await ctx.reply(chunk);
+					// Try Markdown first, fall back to plain text
+					try {
+						await ctx.reply(chunk, { parse_mode: "Markdown" });
+					} catch {
+						await ctx.reply(chunk);
+					}
 				}
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
 				await ctx.reply(errorMsg);
+			} finally {
+				clearInterval(typingInterval);
 			}
 		});
 	};

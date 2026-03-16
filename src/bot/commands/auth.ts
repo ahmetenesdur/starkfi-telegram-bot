@@ -2,7 +2,6 @@ import { join } from "node:path";
 import type { BotContext } from "../middleware/session.js";
 import { requestLogin, verifyOtp, writeSessionFile } from "../../auth/starkfi-auth.js";
 import type { Config } from "../../lib/config.js";
-import { truncateAddress } from "../../lib/format.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
 import { logger } from "../../lib/logger.js";
 
@@ -65,7 +64,7 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 
 			await ctx.reply(
 				"*Logged In* ✓\n\n" +
-					`• Address: \`${truncateAddress(auth.walletAddress)}\`\n` +
+					`• Address: \`${auth.walletAddress}\`\n` +
 					"• Network: mainnet\n\n" +
 					"You're all set! Try: _\"What's my balance?\"_",
 				{ parse_mode: "Markdown" }
