@@ -50,15 +50,29 @@ async function main(): Promise<void> {
 	});
 
 	const port = Number(process.env.PORT) || 8080;
-	createServer((_, res) => {
-		res.writeHead(200);
-		res.end("OK");
-	}).listen(port, () => {
-		logger.info(`Health check server listening on port ${port}`);
-	});
 
-	await bot.launch();
-	logger.info("Bot is running — press Ctrl+C to stop");
+	if (config.webhookUrl) {
+		// Webhook mode (App Runner / production)
+		await bot.launch({
+			webhook: {
+				domain: config.webhookUrl,
+				port,
+				path: `/webhook/${config.webhookSecret}`,
+				secretToken: config.webhookSecret,
+			},
+		});
+		logger.info("Bot running in webhook mode", { port });
+	} else {
+		// Long polling mode (local development)
+		createServer((_, res) => {
+			res.writeHead(200);
+			res.end("OK");
+		}).listen(port, () => {
+			logger.info(`Health check server on port ${port}`);
+		});
+		await bot.launch();
+		logger.info("Bot running in polling mode");
+	}
 }
 
 main().catch((error) => {

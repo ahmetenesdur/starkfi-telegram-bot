@@ -2,6 +2,8 @@ export interface Config {
 	telegramBotToken: string;
 	encryptionSecret: string;
 	starkfiServerUrl: string;
+	webhookUrl?: string;
+	webhookSecret?: string;
 	mcpCommand: string;
 	mcpArgs: string[];
 	logLevel: LogLevel;
@@ -48,6 +50,8 @@ export function loadConfig(): Config {
 		telegramBotToken: requireEnv("TELEGRAM_BOT_TOKEN"),
 		encryptionSecret,
 		starkfiServerUrl: requireEnv("STARKFI_SERVER_URL"),
+		webhookUrl: process.env.WEBHOOK_URL || undefined,
+		webhookSecret: process.env.WEBHOOK_SECRET || undefined,
 		mcpCommand: process.env.STARKFI_MCP_COMMAND ?? "npx",
 		mcpArgs: (process.env.STARKFI_MCP_ARGS ?? "-y,starkfi@latest,mcp-start").split(","),
 		logLevel: parseLogLevel(process.env.LOG_LEVEL),
