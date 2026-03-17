@@ -4,11 +4,10 @@
 
 1. A configured `.env` file (see [SETUP.md](SETUP.md)).
 2. A successful local test — run `pnpm dev` and verify the bot responds.
-3. Node.js 18+ on your server (unless using Docker).
 
 ---
 
-## Option 1: Docker (Recommended)
+## Docker
 
 ### Build and Run
 
@@ -42,124 +41,36 @@ The `bot-data` volume persists the SQLite database and user sessions across rest
 
 ---
 
-## Option 2: AWS App Runner
-
-### Source-Based Deployment
-
-1. Create a new App Runner service → **Source code repository**.
-2. Connect your GitHub repository and select the `main` branch.
-3. Configure build settings:
-
-| Setting | Value |
-| --------------- | ---------------------------------------------------- |
-| Runtime         | Node.js 20                                           |
-| Build command   | `npm install -g pnpm && pnpm install && pnpm build`  |
-| Start command   | `node dist/index.js`                                 |
-| Port            | `8080`                                               |
-
-4. Add environment variables in the **Configuration** tab:
-   - `TELEGRAM_BOT_TOKEN`
-   - `BOT_ENCRYPTION_SECRET`
-   - `STARKFI_SERVER_URL`
-
-5. Set **Auto scaling** → min: `1`, max: `1`.
-
-> **Important:** Telegram allows only one long-polling connection per bot token. Running multiple instances will cause message conflicts. Always keep App Runner pinned to a single instance.
-
-### Health Check
-
-The bot starts an HTTP server on port 8080 that responds `200 OK`. App Runner uses this for health checks automatically — no extra configuration needed.
-
----
-
-## Option 3: PM2
+## Railway (Cloud)
 
 ### Setup
 
-```bash
-npm install -g pm2
-pnpm build
-pm2 start dist/index.js --name starkfi-bot
-```
+1. Create a [Railway](https://railway.app) account and a new project.
+2. Connect your GitHub repository (`starkfi-telegram-bot`) and select the `main` branch.
+3. Railway auto-detects the `Dockerfile` and builds from it.
 
-### Commands
+### Volume (Persistent Storage)
 
-```bash
-pm2 status              # process status
-pm2 logs starkfi-bot    # tail logs
-pm2 restart starkfi-bot # restart
-pm2 stop starkfi-bot    # stop
-```
+Add a volume to persist the SQLite database across deployments:
 
-### Auto-start on Boot
+1. Click **+ Add** → **Volume**.
+2. Set **Mount Path** to `/app/.data`.
+3. Attach it to the `starkfi-telegram-bot` service.
 
-```bash
-pm2 startup   # generates a platform-specific command — run what it outputs
-pm2 save
-```
+### Environment Variables
 
-### Ecosystem File (Optional)
+Add these in the **Variables** tab:
 
-```js
-// ecosystem.config.cjs
-module.exports = {
-	apps: [
-		{
-			name: "starkfi-bot",
-			script: "dist/index.js",
-			env: { NODE_ENV: "production" },
-			max_memory_restart: "256M",
-		},
-	],
-};
-```
+| Variable                | Required | Description                        |
+| ----------------------- | -------- | ---------------------------------- |
+| `TELEGRAM_BOT_TOKEN`    | Yes      | Bot token from BotFather           |
+| `BOT_ENCRYPTION_SECRET` | Yes      | 64-char hex string for AES-256-GCM |
+| `STARKFI_SERVER_URL`    | Yes      | StarkFi authentication server URL  |
+| `LOG_LEVEL`             | No       | `debug`, `info`, `warn`, or `error` (default: `info`) |
 
-```bash
-pm2 start ecosystem.config.cjs
-```
+### How It Works
 
----
-
-## Option 4: systemd
-
-### Setup
-
-```bash
-pnpm build
-sudo nano /etc/systemd/system/starkfi-bot.service
-```
-
-```ini
-[Unit]
-Description=StarkFi Telegram Bot
-After=network.target
-
-[Service]
-Type=simple
-User=deploy
-WorkingDirectory=/home/deploy/starkfi-telegram-bot
-ExecStart=/usr/bin/node dist/index.js
-Restart=always
-RestartSec=10
-EnvironmentFile=/home/deploy/starkfi-telegram-bot/.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-> Adjust `User`, `WorkingDirectory`, and `EnvironmentFile` to match your setup.
-
-### Commands
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable starkfi-bot
-sudo systemctl start starkfi-bot
-
-sudo systemctl status starkfi-bot    # status
-sudo journalctl -u starkfi-bot -f    # logs
-sudo systemctl restart starkfi-bot   # restart
-```
+Railway deploys a single container instance. The bot uses long polling — no public URL or webhook needed. Auto-deploys on every push to `main`.
 
 ---
 
@@ -169,13 +80,11 @@ sudo systemctl restart starkfi-bot   # restart
 
 - [ ] `BOT_ENCRYPTION_SECRET` is a unique, random 64-char hex string
 - [ ] `.env` is in `.gitignore`
-- [ ] Bot runs as a non-root user
 - [ ] Firewall allows only outbound HTTPS (443) — no inbound ports needed
 
 ### Reliability
 
 - [ ] Process auto-restarts on crash
-- [ ] Service starts on boot
 - [ ] Logs are captured and rotated
 - [ ] `.data/` is on persistent storage
 
@@ -195,10 +104,8 @@ pnpm install
 pnpm build
 
 # Restart with your chosen method:
-docker compose up -d --build        # Docker
-pm2 restart starkfi-bot             # PM2
-sudo systemctl restart starkfi-bot  # systemd
-# App Runner: auto-deploys on push if connected to GitHub
+docker compose up -d --build   # Docker
+# Railway: auto-deploys on push to main
 ```
 
 ---
@@ -209,7 +116,6 @@ sudo systemctl restart starkfi-bot  # systemd
 
 - Verify `TELEGRAM_BOT_TOKEN` is correct.
 - Ensure no other instance is running — Telegram allows one long-polling connection per token.
-- If using App Runner, verify scaling is set to min=1, max=1.
 
 **"BOT_ENCRYPTION_SECRET must be a 64-character hex string":**
 
@@ -223,3 +129,4 @@ sudo systemctl restart starkfi-bot  # systemd
 **SQLite errors on restart:**
 
 - Mount `.data/` as a persistent volume (`docker-compose.yml` example above).
+- On Railway, ensure the volume is attached with mount path `/app/.data`.
