@@ -8,7 +8,8 @@ import { logger } from "../../lib/logger.js";
 
 export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 	return async function authCommand(ctx: BotContext): Promise<void> {
-		const userId = ctx.from!.id.toString();
+		const userId = ctx.from?.id?.toString();
+		if (!userId) return;
 
 		ctx.store.setAuthState(userId, JSON.stringify({ step: "awaiting_email" }));
 
@@ -21,7 +22,8 @@ export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 
 export function createEmailHandler(config: Config) {
 	return async function handleEmail(ctx: BotContext, email: string): Promise<void> {
-		const userId = ctx.from!.id.toString();
+		const userId = ctx.from?.id?.toString();
+		if (!userId) return;
 
 		try {
 			await requestLogin(config.starkfiServerUrl, email);
@@ -52,7 +54,8 @@ export function createEmailHandler(config: Config) {
 
 export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDir: string) {
 	return async function handleOtp(ctx: BotContext, email: string, code: string): Promise<void> {
-		const userId = ctx.from!.id.toString();
+		const userId = ctx.from?.id?.toString();
+		if (!userId) return;
 
 		try {
 			const auth = await verifyOtp(config.starkfiServerUrl, email, code);
