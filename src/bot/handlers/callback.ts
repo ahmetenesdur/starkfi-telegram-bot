@@ -17,6 +17,94 @@ export function createInteractionHandlers(
 	const handleOtp = createOtpHandler(config, mcpPool, dataDir);
 	const authCommand = createAuthCommand(config, mcpPool);
 
+	async function handleSetupCallback(ctx: BotContext, data: string): Promise<void> {
+		const provider = data.split(":")[1] as Provider;
+		await handleProviderSelection(ctx, provider);
+	}
+
+	async function handleSetupModelCallback(ctx: BotContext, data: string): Promise<void> {
+		const parts = data.split(":");
+		const provider = parts[1] as Provider;
+		const modelId = parts[2];
+		await handleModelSelection(ctx, provider, modelId);
+	}
+
+	async function handleSwitchModelCallback(ctx: BotContext, data: string): Promise<void> {
+		const modelId = data.split(":")[1];
+		const userId = ctx.from!.id.toString();
+		const session = ctx.userSession;
+
+		if (!session) {
+			await ctx.reply("No AI model configured yet. Use /setup to get started.");
+			return;
+		}
+
+		const models = MODEL_OPTIONS[session.provider];
+		const model = models.find((m) => m.id === modelId);
+
+		if (!model) {
+			await ctx.reply("That model is no longer available. Use /model to see your options.");
+			return;
+		}
+
+		ctx.store.updateModelName(userId, modelId);
+
+		await ctx.editMessageText(`*Model Updated*\n\n` + `Now using: \`${model.label}\``, {
+			parse_mode: "Markdown",
+		});
+	}
+
+	async function handleActionCallback(ctx: BotContext, data: string): Promise<boolean> {
+		if (data === "action:setup") {
+			await setupCommand(ctx);
+			return true;
+		}
+		if (data === "action:auth") {
+			await authCommand(ctx);
+			return true;
+		}
+		if (data === "action:help") {
+			await helpCommand(ctx);
+			return true;
+		}
+		if (data === "action:about") {
+			await ctx.reply(
+				"*About StarkFi*\n\n" +
+					"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
+					"powered by the Starkzap SDK.\n\n" +
+					"*What it includes:*\n" +
+					"• CLI with 30+ commands across 10 groups\n" +
+					"• MCP server with 27 tools for AI agents\n" +
+					"• 10 agent skills for autonomous DeFi workflows\n\n" +
+					"*Key capabilities:*\n" +
+					"• DEX-aggregated swaps via Fibrous\n" +
+					"• Multi-token swaps in a single transaction\n" +
+					"• Multi-token staking across validators\n" +
+					"• Lending and borrowing on Vesu V2\n" +
+					"• Gasless and gasfree transactions via AVNU Paymaster\n" +
+					"• Atomic multicall batching\n\n" +
+					"This bot is a live example of what you can build with " +
+					"StarkFi's MCP server.",
+				{
+					parse_mode: "Markdown",
+					...Markup.inlineKeyboard([
+						[
+							Markup.button.url("Website", "https://starkfi.app"),
+							Markup.button.url("Docs", "https://docs.starkfi.app/docs"),
+						],
+						[
+							Markup.button.url("GitHub", "https://github.com/ahmetenesdur/starkfi"),
+							Markup.button.url("npm", "https://npmjs.com/package/starkfi"),
+						],
+						[Markup.button.url("Twitter/X", "https://x.com/starkfiapp")],
+					]),
+				}
+			);
+			return true;
+		}
+		return false;
+	}
+
 	async function handleCallback(ctx: BotContext): Promise<void> {
 		const data =
 			ctx.callbackQuery && "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined;
@@ -26,100 +114,24 @@ export function createInteractionHandlers(
 		try {
 			await ctx.answerCbQuery();
 
-			// Provider selection: setup:<provider>
 			if (data.startsWith("setup:")) {
-				const provider = data.split(":")[1] as Provider;
-				await handleProviderSelection(ctx, provider);
+				await handleSetupCallback(ctx, data);
 				return;
 			}
 
-			// Model selection: setupmodel:<provider>:<modelId>
 			if (data.startsWith("setupmodel:")) {
-				const parts = data.split(":");
-				const provider = parts[1] as Provider;
-				const modelId = parts[2];
-				await handleModelSelection(ctx, provider, modelId);
+				await handleSetupModelCallback(ctx, data);
 				return;
 			}
 
-			// In-provider model switch: switchmodel:<modelId>
 			if (data.startsWith("switchmodel:")) {
-				const modelId = data.split(":")[1];
-				const userId = ctx.from!.id.toString();
-				const session = ctx.userSession;
-
-				if (!session) {
-					await ctx.reply("No AI model configured yet. Use /setup to get started.");
-					return;
-				}
-
-				const models = MODEL_OPTIONS[session.provider];
-				const model = models.find((m) => m.id === modelId);
-
-				if (!model) {
-					await ctx.reply(
-						"That model is no longer available. Use /model to see your options."
-					);
-					return;
-				}
-
-				ctx.store.updateModelName(userId, modelId);
-
-				await ctx.editMessageText(`*Model Updated*\n\n` + `Now using: \`${model.label}\``, {
-					parse_mode: "Markdown",
-				});
+				await handleSwitchModelCallback(ctx, data);
 				return;
 			}
 
-			if (data === "action:setup") {
-				await setupCommand(ctx);
-				return;
-			}
-			if (data === "action:auth") {
-				await authCommand(ctx);
-				return;
-			}
-			if (data === "action:help") {
-				await helpCommand(ctx);
-				return;
-			}
-			if (data === "action:about") {
-				await ctx.reply(
-					"*About StarkFi*\n\n" +
-						"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
-						"powered by the Starkzap SDK.\n\n" +
-						"*What it includes:*\n" +
-						"• CLI with 30+ commands across 10 groups\n" +
-						"• MCP server with 27 tools for AI agents\n" +
-						"• 10 agent skills for autonomous DeFi workflows\n\n" +
-						"*Key capabilities:*\n" +
-						"• DEX-aggregated swaps via Fibrous\n" +
-						"• Multi-token swaps in a single transaction\n" +
-						"• Multi-token staking across validators\n" +
-						"• Lending and borrowing on Vesu V2\n" +
-						"• Gasless and gasfree transactions via AVNU Paymaster\n" +
-						"• Atomic multicall batching\n\n" +
-						"This bot is a live example of what you can build with " +
-						"StarkFi's MCP server.",
-					{
-						parse_mode: "Markdown",
-						...Markup.inlineKeyboard([
-							[
-								Markup.button.url("Website", "https://starkfi.app"),
-								Markup.button.url("Docs", "https://docs.starkfi.app/docs"),
-							],
-							[
-								Markup.button.url(
-									"GitHub",
-									"https://github.com/ahmetenesdur/starkfi"
-								),
-								Markup.button.url("npm", "https://npmjs.com/package/starkfi"),
-							],
-							[Markup.button.url("Twitter/X", "https://x.com/starkfiapp")],
-						]),
-					}
-				);
-				return;
+			if (data.startsWith("action:")) {
+				const handled = await handleActionCallback(ctx, data);
+				if (handled) return;
 			}
 
 			logger.warn("Unknown callback data", { data });
