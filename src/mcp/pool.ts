@@ -4,7 +4,7 @@ import type { MCPClient } from "@ai-sdk/mcp";
 import { createStarkfiMcpClient } from "./client.js";
 import { logger } from "../lib/logger.js";
 
-type McpToolSet = Awaited<ReturnType<MCPClient["tools"]>>;
+export type McpToolSet = Awaited<ReturnType<MCPClient["tools"]>>;
 
 interface PoolEntry {
 	client: MCPClient;
@@ -28,7 +28,7 @@ export class McpProcessPool {
 		if (entry) {
 			// Validate the cached client is still alive
 			try {
-				await entry.client.tools();
+				entry.tools = await entry.client.tools();
 			} catch {
 				logger.warn("Stale MCP client detected, reconnecting", { userId });
 				await this.removeClient(userId);

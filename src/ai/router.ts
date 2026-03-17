@@ -1,8 +1,8 @@
 import { generateText, stepCountIs, type ModelMessage } from "ai";
-import type { MCPClient } from "@ai-sdk/mcp";
 import { createModel } from "./providers.js";
 import { SYSTEM_PROMPT } from "./system-prompt.js";
 import type { Provider } from "../session/types.js";
+import type { McpToolSet } from "../mcp/pool.js";
 import { logger } from "../lib/logger.js";
 
 export interface RouterInput {
@@ -11,9 +11,7 @@ export interface RouterInput {
 	modelName: string;
 	history: ModelMessage[];
 	userMessage: string;
-	mcpClient: MCPClient;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	tools: Record<string, any>;
+	tools: McpToolSet;
 }
 
 export interface RouterResult {

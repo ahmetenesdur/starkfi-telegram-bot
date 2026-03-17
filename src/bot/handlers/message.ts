@@ -32,7 +32,7 @@ export function createMessageHandler(
 
 			try {
 				const apiKey = ctx.store.decryptApiKey(session);
-				const { client: mcpClient, tools } = await mcpPool.getClient(userId);
+				const { tools } = await mcpPool.getClient(userId);
 
 				const result = await processMessage({
 					provider: session.provider,
@@ -40,7 +40,6 @@ export function createMessageHandler(
 					modelName: session.modelName,
 					history: session.history,
 					userMessage: text,
-					mcpClient,
 					tools,
 				});
 
