@@ -23,7 +23,7 @@ export async function requestLogin(serverUrl: string, email: string): Promise<vo
 			status: res.status,
 			body: text,
 		});
-		throw new Error(`Login request failed: ${text}`);
+		throw new Error(`Login request failed. Please try again.`);
 	}
 }
 
@@ -44,7 +44,7 @@ export async function verifyOtp(
 			status: res.status,
 			body: text,
 		});
-		throw new Error(`Verification failed: ${text}`);
+		throw new Error(`Verification failed. Please check your code and try again.`);
 	}
 
 	return (await res.json()) as StarkfiAuthResult;

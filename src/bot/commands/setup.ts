@@ -49,8 +49,11 @@ export async function handleModelSelection(
 	const label = PROVIDER_LABELS[provider];
 	const modelLabel = model?.label ?? modelId;
 
+	const userId = ctx.from?.id?.toString();
+	if (!userId) return;
+
 	ctx.store.setAuthState(
-		ctx.from!.id.toString(),
+		userId,
 		JSON.stringify({
 			step: "awaiting_api_key",
 			provider,
@@ -72,7 +75,8 @@ export async function handleApiKeyInput(
 	apiKey: string,
 	modelName?: string
 ): Promise<void> {
-	const userId = ctx.from!.id.toString();
+	const userId = ctx.from?.id?.toString();
+	if (!userId) return;
 	const finalModel = modelName ?? MODEL_DEFAULTS[provider];
 
 	ctx.store.upsert(userId, provider, apiKey, finalModel);
@@ -94,6 +98,9 @@ export async function handleApiKeyInput(
 			`Model: \`${model?.label ?? finalModel}\`\n\n` +
 			"Next step: Use /auth to log in to your StarkFi account.\n" +
 			'Or just start chatting — try _"What can you do?"_',
-		{ parse_mode: "Markdown" }
+		{
+			parse_mode: "Markdown",
+			...Markup.inlineKeyboard([Markup.button.callback("Log In to StarkFi", "action:auth")]),
+		}
 	);
 }
