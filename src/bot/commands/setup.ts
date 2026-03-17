@@ -49,8 +49,11 @@ export async function handleModelSelection(
 	const label = PROVIDER_LABELS[provider];
 	const modelLabel = model?.label ?? modelId;
 
+	const userId = ctx.from?.id?.toString();
+	if (!userId) return;
+
 	ctx.store.setAuthState(
-		ctx.from!.id.toString(),
+		userId,
 		JSON.stringify({
 			step: "awaiting_api_key",
 			provider,
@@ -72,7 +75,8 @@ export async function handleApiKeyInput(
 	apiKey: string,
 	modelName?: string
 ): Promise<void> {
-	const userId = ctx.from!.id.toString();
+	const userId = ctx.from?.id?.toString();
+	if (!userId) return;
 	const finalModel = modelName ?? MODEL_DEFAULTS[provider];
 
 	ctx.store.upsert(userId, provider, apiKey, finalModel);

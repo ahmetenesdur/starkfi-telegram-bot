@@ -15,9 +15,10 @@ export function createMessageHandler(
 		if (!("text" in (ctx.message ?? {}))) return;
 
 		const text = (ctx.message as { text: string }).text;
-		const userId = ctx.from!.id.toString();
-		const session = ctx.userSession;
+		const userId = ctx.from?.id?.toString();
+		if (!userId) return;
 
+		const session = ctx.userSession;
 		if (!session) return;
 
 		await messageQueue.enqueue(userId, async () => {
