@@ -2,8 +2,6 @@ export interface Config {
 	telegramBotToken: string;
 	encryptionSecret: string;
 	starkfiServerUrl: string;
-	webhookUrl?: string;
-	webhookSecret?: string;
 	mcpCommand: string;
 	mcpArgs: string[];
 	logLevel: LogLevel;
@@ -46,28 +44,10 @@ export function loadConfig(): Config {
 		throw new Error("BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)");
 	}
 
-	const webhookUrl = process.env.WEBHOOK_URL?.replace(/\/+$/, "") || undefined;
-	const webhookSecret = process.env.WEBHOOK_SECRET || undefined;
-
-	if (webhookUrl && !webhookSecret) {
-		throw new Error(
-			"WEBHOOK_SECRET is required when WEBHOOK_URL is set. " +
-				"Generate one with: openssl rand -hex 32"
-		);
-	}
-
-	if (webhookSecret && !/^[A-Za-z0-9_-]{1,256}$/.test(webhookSecret)) {
-		throw new Error(
-			"WEBHOOK_SECRET must be 1-256 characters, containing only A-Z, a-z, 0-9, _ or -"
-		);
-	}
-
 	return {
 		telegramBotToken: requireEnv("TELEGRAM_BOT_TOKEN"),
 		encryptionSecret,
 		starkfiServerUrl: requireEnv("STARKFI_SERVER_URL"),
-		webhookUrl,
-		webhookSecret,
 		mcpCommand: process.env.STARKFI_MCP_COMMAND ?? "npx",
 		mcpArgs: (process.env.STARKFI_MCP_ARGS ?? "-y,starkfi@latest,mcp-start").split(","),
 		logLevel: parseLogLevel(process.env.LOG_LEVEL),
