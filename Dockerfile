@@ -11,13 +11,11 @@ RUN pnpm build && pnpm prune --prod
 # Production stage
 FROM node:20-alpine
 RUN apk add --no-cache dumb-init
-RUN addgroup -S bot && adduser -S bot -G bot
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
-RUN mkdir -p .data && chown -R bot:bot /app
-USER bot
+RUN mkdir -p .data
 ENV NODE_ENV=production
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/index.js"]
