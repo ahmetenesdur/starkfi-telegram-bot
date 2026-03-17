@@ -75,19 +75,19 @@ export class McpProcessPool {
 
 		this.cleanupTimer = setInterval(async () => {
 			const now = Date.now();
-			const toRemove: string[] = [];
+			const promises: Promise<void>[] = [];
 
 			for (const [userId, entry] of this.pool) {
 				if (now - entry.lastUsed > this.idleTimeoutMs) {
-					toRemove.push(userId);
+					promises.push(this.removeClient(userId));
 				}
 			}
 
-			if (toRemove.length > 0) {
+			if (promises.length > 0) {
 				logger.info("Cleaning up idle MCP processes", {
-					count: toRemove.length,
+					count: promises.length,
 				});
-				await Promise.allSettled(toRemove.map((id) => this.removeClient(id)));
+				await Promise.allSettled(promises);
 			}
 		}, 60_000);
 		this.cleanupTimer.unref();
@@ -99,10 +99,14 @@ export class McpProcessPool {
 			this.cleanupTimer = null;
 		}
 
-		const userIds = [...this.pool.keys()];
-		if (userIds.length > 0) {
-			logger.info("Shutting down all MCP processes", { count: userIds.length });
-			await Promise.allSettled(userIds.map((id) => this.removeClient(id)));
+		const promises: Promise<void>[] = [];
+		for (const userId of this.pool.keys()) {
+			promises.push(this.removeClient(userId));
+		}
+
+		if (promises.length > 0) {
+			logger.info("Shutting down all MCP processes", { count: promises.length });
+			await Promise.allSettled(promises);
 		}
 	}
 
