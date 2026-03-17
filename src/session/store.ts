@@ -4,6 +4,16 @@ import { encrypt, decrypt } from "./crypto.js";
 import type { Provider, UserSession } from "./types.js";
 import { logger } from "../lib/logger.js";
 
+function safeParseHistory(raw: string): ModelMessage[] {
+	try {
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		logger.warn("Corrupt history data — resetting to empty");
+		return [];
+	}
+}
+
 export class SessionStore {
 	private db: Database.Database;
 	private encryptionSecret: string;
@@ -97,7 +107,7 @@ export class SessionStore {
 			authTag: row.auth_tag,
 			modelName: row.model_name,
 			starkfiAddr: row.starkfi_addr,
-			history: JSON.parse(row.history) as ModelMessage[],
+			history: safeParseHistory(row.history),
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
 		};

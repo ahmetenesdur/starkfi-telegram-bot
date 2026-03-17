@@ -60,16 +60,8 @@ export function createMessageHandler(
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
 
-				const isUserFriendly =
-					errorMsg.includes("API key") ||
-					errorMsg.toLowerCase().includes("rate limit") ||
-					errorMsg.includes("quota") ||
-					errorMsg.includes("Please try again") ||
-					errorMsg.includes("upgrade your plan") ||
-					errorMsg.includes("Use /setup");
-				await ctx.reply(
-					isUserFriendly ? errorMsg : "Something went wrong. Please try again."
-				);
+				// All errors from router.ts are already user-friendly
+				await ctx.reply(errorMsg);
 			} finally {
 				clearInterval(typingInterval);
 			}
