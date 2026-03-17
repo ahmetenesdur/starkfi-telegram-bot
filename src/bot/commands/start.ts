@@ -5,14 +5,14 @@ export async function startCommand(ctx: BotContext): Promise<void> {
 	const name = ctx.from?.first_name ?? "there";
 
 	await ctx.reply(
-		`Welcome to *StarkFi Bot*, ${name}!\n\n` +
+		`Hey ${name}, welcome to *StarkFi Bot*!\n\n` +
 			"I'm your AI-powered DeFi assistant for *Starknet*. " +
-			"I can help you swap tokens, stake, lend, and manage your portfolio — all through natural language.\n\n" +
-			"*Getting Started:*\n" +
-			"1. Use /setup to choose your AI provider and model\n" +
-			"2. Use /auth to log in to your StarkFi account\n" +
-			'3. Start chatting! Try: _"What\'s my balance?"_\n\n' +
-			"Use /help to see all available commands.",
+			"Swap tokens, stake, lend, and manage your portfolio — all through natural conversation.\n\n" +
+			"*Get started in 3 steps:*\n" +
+			"1. /setup — Choose your AI provider and model\n" +
+			"2. /auth — Log in to your StarkFi account\n" +
+			'3. Start chatting — try _"What\'s my balance?"_\n\n' +
+			"Need help? Use /help to see everything I can do.",
 		{
 			parse_mode: "Markdown",
 			...Markup.inlineKeyboard([

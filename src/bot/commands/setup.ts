@@ -11,9 +11,9 @@ export async function setupCommand(ctx: BotContext): Promise<void> {
 	await ctx.reply(
 		"*AI Model Setup*\n\n" +
 			"Choose your AI provider. You'll need an API key from the provider's dashboard.\n\n" +
-			"• *OpenAI* — Fast, reliable, great tool use\n" +
-			"• *Claude* — Excellent reasoning and analysis\n" +
-			"• *Gemini* — Strong multimodal capabilities",
+			"• *OpenAI* — Fast and reliable, great tool use\n" +
+			"• *Claude* — Strong reasoning and analysis\n" +
+			"• *Gemini* — Powerful multimodal capabilities",
 		{
 			parse_mode: "Markdown",
 			...Markup.inlineKeyboard([
@@ -33,7 +33,7 @@ export async function handleProviderSelection(ctx: BotContext, provider: Provide
 		Markup.button.callback(`${m.label} — ${m.description}`, `setupmodel:${provider}:${m.id}`)
 	);
 
-	await ctx.editMessageText(`Selected: *${label}*\n\n` + "Now choose a model:", {
+	await ctx.editMessageText(`Provider: *${label}*\n\nNow choose a model:`, {
 		parse_mode: "Markdown",
 		...Markup.inlineKeyboard(buttons.map((b) => [b])),
 	});
@@ -59,8 +59,8 @@ export async function handleModelSelection(
 	);
 
 	await ctx.editMessageText(
-		`*${label}* → \`${modelLabel}\`\n\n` +
-			"Now send me your API key.\n\n" +
+		`*${label}* — \`${modelLabel}\`\n\n` +
+			"Send me your API key.\n\n" +
 			"_Your key is encrypted with AES-256-GCM and never stored in plain text._",
 		{ parse_mode: "Markdown" }
 	);
@@ -89,11 +89,11 @@ export async function handleApiKeyInput(
 	const model = models.find((m) => m.id === finalModel);
 
 	await ctx.reply(
-		"*Setup Complete* ✓\n\n" +
-			`• Provider: *${PROVIDER_LABELS[provider]}*\n` +
-			`• Model: \`${model?.label ?? finalModel}\`\n\n` +
+		"*Setup Complete*\n\n" +
+			`Provider: *${PROVIDER_LABELS[provider]}*\n` +
+			`Model: \`${model?.label ?? finalModel}\`\n\n` +
 			"Next step: Use /auth to log in to your StarkFi account.\n" +
-			'Or just start chatting — try: _"What can you do?"_',
+			'Or just start chatting — try _"What can you do?"_',
 		{ parse_mode: "Markdown" }
 	);
 }

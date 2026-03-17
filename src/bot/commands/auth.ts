@@ -12,7 +12,7 @@ export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 		ctx.store.setAuthState(userId, JSON.stringify({ step: "awaiting_email" }));
 
 		await ctx.reply(
-			"*StarkFi Login*\n\n" + "Enter your email address to log in to your StarkFi account:",
+			"*StarkFi Login*\n\n" + "Enter the email address associated with your StarkFi account:",
 			{ parse_mode: "Markdown" }
 		);
 	};
@@ -34,14 +34,15 @@ export function createEmailHandler(config: Config) {
 			);
 
 			await ctx.reply(
-				`Verification code sent to *${email}*\n\n` + "Enter the 6-digit code you received:",
+				`Verification code sent to *${email}*.\n\n` +
+					"Enter the 6-digit code from your inbox:",
 				{ parse_mode: "Markdown" }
 			);
 		} catch (error) {
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth login failed", { userId, error: msg });
-			await ctx.reply(`Login failed: ${msg}\n\nTry /auth again.`);
+			await ctx.reply(`Login failed: ${msg}\n\nUse /auth to try again.`);
 		}
 	};
 }
@@ -63,17 +64,17 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 			await mcpPool.removeClient(userId);
 
 			await ctx.reply(
-				"*Logged In* ✓\n\n" +
-					`• Address: \`${auth.walletAddress}\`\n` +
-					"• Network: mainnet\n\n" +
-					"You're all set! Try: _\"What's my balance?\"_",
+				"*Logged In*\n\n" +
+					`Address: \`${auth.walletAddress}\`\n` +
+					"Network: mainnet\n\n" +
+					"You're all set! Try _\"What's my balance?\"_",
 				{ parse_mode: "Markdown" }
 			);
 		} catch (error) {
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth verify failed", { userId, error: msg });
-			await ctx.reply(`Verification failed: ${msg}\n\nTry /auth again.`);
+			await ctx.reply(`Verification failed: ${msg}\n\nUse /auth to try again.`);
 		}
 	};
 }

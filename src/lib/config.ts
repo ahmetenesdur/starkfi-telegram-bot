@@ -28,16 +28,31 @@ function parseLogLevel(raw: string | undefined): LogLevel {
 	return "info";
 }
 
+function parseIntEnv(key: string, fallback: number): number {
+	const raw = process.env[key];
+	if (!raw) return fallback;
+	const parsed = Number(raw);
+	if (Number.isNaN(parsed) || parsed < 0) {
+		throw new Error(`${key} must be a non-negative number, got: "${raw}"`);
+	}
+	return parsed;
+}
+
 export function loadConfig(): Config {
+	const encryptionSecret = requireEnv("BOT_ENCRYPTION_SECRET");
+	if (!/^[0-9a-f]{64}$/i.test(encryptionSecret)) {
+		throw new Error("BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)");
+	}
+
 	return {
 		telegramBotToken: requireEnv("TELEGRAM_BOT_TOKEN"),
-		encryptionSecret: requireEnv("BOT_ENCRYPTION_SECRET"),
+		encryptionSecret,
 		starkfiServerUrl: requireEnv("STARKFI_SERVER_URL"),
 		mcpCommand: process.env.STARKFI_MCP_COMMAND ?? "npx",
 		mcpArgs: (process.env.STARKFI_MCP_ARGS ?? "-y,starkfi@latest,mcp-start").split(","),
 		logLevel: parseLogLevel(process.env.LOG_LEVEL),
-		maxHistory: Number(process.env.MAX_HISTORY ?? "20"),
-		rateLimitPerMinute: Number(process.env.RATE_LIMIT_PER_MINUTE ?? "30"),
-		mcpIdleTimeoutMs: Number(process.env.MCP_IDLE_TIMEOUT_MS ?? "300000"),
+		maxHistory: parseIntEnv("MAX_HISTORY", 20),
+		rateLimitPerMinute: parseIntEnv("RATE_LIMIT_PER_MINUTE", 30),
+		mcpIdleTimeoutMs: parseIntEnv("MCP_IDLE_TIMEOUT_MS", 300_000),
 	};
 }

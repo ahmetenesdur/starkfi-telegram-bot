@@ -49,7 +49,7 @@ export function createInteractionHandlers(
 				const session = ctx.userSession;
 
 				if (!session) {
-					await ctx.reply("You haven't set up yet. Use /setup first.");
+					await ctx.reply("No AI model configured yet. Use /setup to get started.");
 					return;
 				}
 
@@ -57,16 +57,17 @@ export function createInteractionHandlers(
 				const model = models.find((m) => m.id === modelId);
 
 				if (!model) {
-					await ctx.reply("Unknown model. Use /model to see available options.");
+					await ctx.reply(
+						"That model is no longer available. Use /model to see your options."
+					);
 					return;
 				}
 
 				ctx.store.updateModelName(userId, modelId);
 
-				await ctx.editMessageText(
-					`*Model Updated* ✓\n\n` + `Now using: \`${model.label}\``,
-					{ parse_mode: "Markdown" }
-				);
+				await ctx.editMessageText(`*Model Updated*\n\n` + `Now using: \`${model.label}\``, {
+					parse_mode: "Markdown",
+				});
 				return;
 			}
 
@@ -85,36 +86,36 @@ export function createInteractionHandlers(
 			if (data === "action:about") {
 				await ctx.reply(
 					"*About StarkFi*\n\n" +
-						"StarkFi is an AI-native DeFi toolkit for *Starknet*, " +
-						"built on the Starkzap SDK.\n\n" +
-						"*What's Inside:*\n" +
+						"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
+						"powered by the Starkzap SDK.\n\n" +
+						"*What it includes:*\n" +
 						"• CLI with 30+ commands across 10 groups\n" +
 						"• MCP server with 27 tools for AI agents\n" +
-						"• 10 Agent Skills for autonomous DeFi\n\n" +
-						"*Key Features:*\n" +
+						"• 10 agent skills for autonomous DeFi workflows\n\n" +
+						"*Key capabilities:*\n" +
 						"• DEX-aggregated swaps via Fibrous\n" +
-						"• Multi-token swaps in a single call\n" +
-						"• Staking across Karnot, Fibrous, and more\n" +
-						"• Lending & borrowing on Vesu V2\n" +
-						"• Gas abstraction via AVNU Paymaster\n" +
-						"• Atomic multicalls for batch operations\n\n" +
-						"This bot is a live example of what you can build with StarkFi's MCP server. " +
-						"Explore the links below to learn more!",
+						"• Multi-token swaps in a single transaction\n" +
+						"• Multi-token staking across validators\n" +
+						"• Lending and borrowing on Vesu V2\n" +
+						"• Gasless and gasfree transactions via AVNU Paymaster\n" +
+						"• Atomic multicall batching\n\n" +
+						"This bot is a live example of what you can build with " +
+						"StarkFi's MCP server.",
 					{
 						parse_mode: "Markdown",
 						...Markup.inlineKeyboard([
 							[
-								Markup.button.url("🌐 Website", "https://starkfi.app"),
-								Markup.button.url("📖 Docs", "https://docs.starkfi.app/docs"),
+								Markup.button.url("Website", "https://starkfi.app"),
+								Markup.button.url("Docs", "https://docs.starkfi.app/docs"),
 							],
 							[
 								Markup.button.url(
-									"💻 GitHub",
+									"GitHub",
 									"https://github.com/ahmetenesdur/starkfi"
 								),
-								Markup.button.url("📦 npm", "https://npmjs.com/package/starkfi"),
+								Markup.button.url("npm", "https://npmjs.com/package/starkfi"),
 							],
-							[Markup.button.url("🐦 Twitter/X", "https://x.com/starkfiapp")],
+							[Markup.button.url("Twitter/X", "https://x.com/starkfiapp")],
 						]),
 					}
 				);
@@ -125,7 +126,7 @@ export function createInteractionHandlers(
 		} catch (error) {
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Callback handler error", { data, error: msg });
-			await ctx.reply(`Error: ${msg}`);
+			await ctx.reply("Something went wrong. Please try again.");
 		}
 	}
 
@@ -171,7 +172,11 @@ export function createInteractionHandlers(
 				await handleApiKeyInput(ctx, state.provider, text.trim(), state.modelId);
 				return true;
 			}
-		} catch {
+		} catch (error) {
+			logger.warn("Corrupt auth state cleared", {
+				userId,
+				error: error instanceof Error ? error.message : String(error),
+			});
 			ctx.store.clearAuthState(userId);
 		}
 

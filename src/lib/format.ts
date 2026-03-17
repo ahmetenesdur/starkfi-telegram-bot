@@ -5,9 +5,9 @@ export function sanitizeForTelegram(text: string): string {
 	return (
 		text
 			// **bold** → *bold* (Telegram uses single asterisk)
-			.replace(/\*\*(.+?)\*\*/g, "*$1*")
+			.replace(/\*\*([^\n]+?)\*\*/g, "*$1*")
 			// __bold__ → *bold*
-			.replace(/__(.+?)__/g, "*$1*")
+			.replace(/__([^\n]+?)__/g, "*$1*")
 			// # Headers → *bold text*
 			.replace(/^#{1,6}\s+(.+)$/gm, "*$1*")
 			// --- horizontal rules → blank

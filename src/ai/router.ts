@@ -41,22 +41,22 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			system: SYSTEM_PROMPT,
 			messages,
 			stopWhen: stepCountIs(10),
+
+			onStepFinish({ stepNumber, finishReason, usage }) {
+				logger.debug("AI step completed", {
+					step: stepNumber,
+					reason: finishReason,
+					tokens: usage.totalTokens,
+				});
+			},
+
+			experimental_onToolCallFinish({ toolCall, durationMs }) {
+				logger.debug("Tool call completed", {
+					toolName: toolCall.toolName,
+					durationMs,
+				});
+			},
 		});
-
-		// Surface tool errors that would otherwise fail silently
-		const toolErrors = result.steps.flatMap((step) =>
-			step.content.filter(
-				(part): part is Extract<typeof part, { type: "tool-error" }> =>
-					part.type === "tool-error"
-			)
-		);
-
-		for (const err of toolErrors) {
-			logger.warn("Tool execution error", {
-				toolName: err.toolName,
-				error: String(err.error),
-			});
-		}
 
 		const responseText =
 			result.text || "I completed the operation but have no additional output.";
@@ -69,7 +69,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 		logger.debug("AI response", {
 			provider,
 			steps: result.steps.length,
-			toolErrors: toolErrors.length,
 			responseLength: responseText.length,
 		});
 

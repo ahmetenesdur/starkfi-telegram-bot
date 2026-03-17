@@ -4,7 +4,7 @@ import { MODEL_OPTIONS, PROVIDER_LABELS } from "../../session/types.js";
 
 export async function modelCommand(ctx: BotContext): Promise<void> {
 	if (!ctx.userSession) {
-		await ctx.reply("You haven't set up yet. Use /setup first.");
+		await ctx.reply("No AI model configured yet. Use /setup to get started.");
 		return;
 	}
 
@@ -20,14 +20,14 @@ export async function modelCommand(ctx: BotContext): Promise<void> {
 		]);
 
 	const changeProviderRow = [
-		Markup.button.callback("Change Provider (new key required)", "action:setup"),
+		Markup.button.callback("Change Provider (requires new API key)", "action:setup"),
 	];
 
 	await ctx.reply(
 		`*Switch Model*\n\n` +
-			`Current: *${PROVIDER_LABELS[provider]}* → \`${currentModel?.label ?? session.modelName}\`\n\n` +
+			`Current: *${PROVIDER_LABELS[provider]}* — \`${currentModel?.label ?? session.modelName}\`\n\n` +
 			(modelButtons.length > 0
-				? "Switch to a different model:"
+				? "Choose a different model:"
 				: "No other models available for this provider."),
 		{
 			parse_mode: "Markdown",

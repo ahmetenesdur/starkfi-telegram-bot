@@ -49,7 +49,7 @@ export function createBot(
 
 		if (!ctx.userSession) {
 			await ctx.reply(
-				"You haven't set up your AI model yet.\n\n" +
+				"No AI model configured yet.\n\n" +
 					"Use /setup to choose your provider, model, and enter your API key."
 			);
 			return;
@@ -63,6 +63,9 @@ export function createBot(
 			error: err instanceof Error ? err.message : String(err),
 			updateType: ctx.updateType,
 			userId: ctx.from?.id?.toString(),
+		});
+		ctx.reply("Something went wrong. Please try again.").catch(() => {
+			/* best-effort */
 		});
 	});
 

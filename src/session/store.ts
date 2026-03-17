@@ -7,6 +7,7 @@ import { logger } from "../lib/logger.js";
 export class SessionStore {
 	private db: Database.Database;
 	private encryptionSecret: string;
+	private stmts!: ReturnType<SessionStore["prepareStatements"]>;
 
 	constructor(dbPath: string, encryptionSecret: string) {
 		this.encryptionSecret = encryptionSecret;
@@ -40,18 +41,52 @@ export class SessionStore {
 			)
 		`);
 
+		this.stmts = this.prepareStatements();
 		logger.info("Session store initialized");
 	}
 
-	get(userId: string): UserSession | null {
-		const row = this.db
-			.prepare(
+	private prepareStatements() {
+		return {
+			getSession: this.db.prepare(
 				`SELECT user_id, provider, encrypted_key, iv, auth_tag,
 				        model_name, starkfi_addr, history, created_at, updated_at
 				 FROM sessions WHERE user_id = ?`
-			)
-			.get(userId) as SessionRow | undefined;
+			),
+			upsertSession: this.db.prepare(
+				`INSERT INTO sessions (user_id, provider, encrypted_key, iv, auth_tag, model_name, history, created_at, updated_at)
+				 VALUES (?, ?, ?, ?, ?, ?, '[]', ?, ?)
+				 ON CONFLICT(user_id) DO UPDATE SET
+				   provider = excluded.provider,
+				   encrypted_key = excluded.encrypted_key,
+				   iv = excluded.iv,
+				   auth_tag = excluded.auth_tag,
+				   model_name = excluded.model_name,
+				   updated_at = excluded.updated_at`
+			),
+			updateAddr: this.db.prepare(
+				`UPDATE sessions SET starkfi_addr = ?, updated_at = ? WHERE user_id = ?`
+			),
+			updateHistory: this.db.prepare(
+				`UPDATE sessions SET history = ?, updated_at = ? WHERE user_id = ?`
+			),
+			updateModel: this.db.prepare(
+				`UPDATE sessions SET model_name = ?, updated_at = ? WHERE user_id = ?`
+			),
+			clearHistory: this.db.prepare(
+				`UPDATE sessions SET history = '[]', updated_at = ? WHERE user_id = ?`
+			),
+			deleteSession: this.db.prepare(`DELETE FROM sessions WHERE user_id = ?`),
+			getAuthState: this.db.prepare(`SELECT state FROM auth_states WHERE user_id = ?`),
+			setAuthState: this.db.prepare(
+				`INSERT INTO auth_states (user_id, state, updated_at) VALUES (?, ?, ?)
+				 ON CONFLICT(user_id) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at`
+			),
+			clearAuthState: this.db.prepare(`DELETE FROM auth_states WHERE user_id = ?`),
+		};
+	}
 
+	get(userId: string): UserSession | null {
+		const row = this.stmts.getSession.get(userId) as SessionRow | undefined;
 		if (!row) return null;
 
 		return {
@@ -71,20 +106,7 @@ export class SessionStore {
 	upsert(userId: string, provider: Provider, apiKey: string, modelName: string): void {
 		const { encrypted, iv, authTag } = encrypt(apiKey, this.encryptionSecret);
 		const now = Date.now();
-
-		this.db
-			.prepare(
-				`INSERT INTO sessions (user_id, provider, encrypted_key, iv, auth_tag, model_name, history, created_at, updated_at)
-				 VALUES (?, ?, ?, ?, ?, ?, '[]', ?, ?)
-				 ON CONFLICT(user_id) DO UPDATE SET
-				   provider = excluded.provider,
-				   encrypted_key = excluded.encrypted_key,
-				   iv = excluded.iv,
-				   auth_tag = excluded.auth_tag,
-				   model_name = excluded.model_name,
-				   updated_at = excluded.updated_at`
-			)
-			.run(userId, provider, encrypted, iv, authTag, modelName, now, now);
+		this.stmts.upsertSession.run(userId, provider, encrypted, iv, authTag, modelName, now, now);
 	}
 
 	decryptApiKey(session: UserSession): string {
@@ -99,52 +121,37 @@ export class SessionStore {
 	}
 
 	updateStarkfiAddr(userId: string, address: string): void {
-		this.db
-			.prepare(`UPDATE sessions SET starkfi_addr = ?, updated_at = ? WHERE user_id = ?`)
-			.run(address, Date.now(), userId);
+		this.stmts.updateAddr.run(address, Date.now(), userId);
 	}
 
 	updateHistory(userId: string, history: ModelMessage[], maxHistory: number): void {
 		const trimmed = history.slice(-maxHistory);
-		this.db
-			.prepare(`UPDATE sessions SET history = ?, updated_at = ? WHERE user_id = ?`)
-			.run(JSON.stringify(trimmed), Date.now(), userId);
+		this.stmts.updateHistory.run(JSON.stringify(trimmed), Date.now(), userId);
 	}
 
 	clearHistory(userId: string): void {
-		this.db
-			.prepare(`UPDATE sessions SET history = '[]', updated_at = ? WHERE user_id = ?`)
-			.run(Date.now(), userId);
+		this.stmts.clearHistory.run(Date.now(), userId);
 	}
 
 	updateModelName(userId: string, modelName: string): void {
-		this.db
-			.prepare(`UPDATE sessions SET model_name = ?, updated_at = ? WHERE user_id = ?`)
-			.run(modelName, Date.now(), userId);
+		this.stmts.updateModel.run(modelName, Date.now(), userId);
 	}
 
 	deleteApiKey(userId: string): void {
-		this.db.prepare(`DELETE FROM sessions WHERE user_id = ?`).run(userId);
+		this.stmts.deleteSession.run(userId);
 	}
 
 	getAuthState(userId: string): string | null {
-		const row = this.db
-			.prepare(`SELECT state FROM auth_states WHERE user_id = ?`)
-			.get(userId) as { state: string } | undefined;
+		const row = this.stmts.getAuthState.get(userId) as { state: string } | undefined;
 		return row?.state ?? null;
 	}
 
 	setAuthState(userId: string, state: string): void {
-		this.db
-			.prepare(
-				`INSERT INTO auth_states (user_id, state, updated_at) VALUES (?, ?, ?)
-				 ON CONFLICT(user_id) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at`
-			)
-			.run(userId, state, Date.now());
+		this.stmts.setAuthState.run(userId, state, Date.now());
 	}
 
 	clearAuthState(userId: string): void {
-		this.db.prepare(`DELETE FROM auth_states WHERE user_id = ?`).run(userId);
+		this.stmts.clearAuthState.run(userId);
 	}
 
 	close(): void {

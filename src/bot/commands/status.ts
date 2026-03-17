@@ -10,8 +10,8 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 		if (!session) {
 			await ctx.reply(
 				"*Status*\n\n" +
-					"• AI Model: Not configured\n" +
-					"• Wallet: Not connected\n\n" +
+					"AI Model: Not configured\n" +
+					"Wallet: Not connected\n\n" +
 					"Use /setup to get started.",
 				{ parse_mode: "Markdown" }
 			);
@@ -28,11 +28,11 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 
 		await ctx.reply(
 			"*Status*\n\n" +
-				`• Provider: *${PROVIDER_LABELS[session.provider]}*\n` +
-				`• Model: \`${modelLabel}\`\n` +
-				`• Wallet: ${walletLine}\n` +
-				`• History: ${session.history.length} messages\n` +
-				`• Active MCP: ${mcpPool.activeCount} processes`,
+				`Provider: *${PROVIDER_LABELS[session.provider]}*\n` +
+				`Model: \`${modelLabel}\`\n` +
+				`Wallet: ${walletLine}\n` +
+				`History: ${session.history.length} messages\n` +
+				`Active MCP: ${mcpPool.activeCount} processes`,
 			{ parse_mode: "Markdown" }
 		);
 	};

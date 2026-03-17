@@ -23,6 +23,14 @@ export class McpProcessPool {
 	async getClient(userId: string): Promise<MCPClient> {
 		const entry = this.pool.get(userId);
 		if (entry) {
+			// Validate the cached client is still alive
+			try {
+				await entry.client.tools();
+			} catch {
+				logger.warn("Stale MCP client detected, reconnecting", { userId });
+				await this.removeClient(userId);
+				return this.getClient(userId);
+			}
 			entry.lastUsed = Date.now();
 			return entry.client;
 		}
@@ -82,6 +90,7 @@ export class McpProcessPool {
 				await Promise.allSettled(toRemove.map((id) => this.removeClient(id)));
 			}
 		}, 60_000);
+		this.cleanupTimer.unref();
 	}
 
 	async shutdown(): Promise<void> {
