@@ -1,8 +1,8 @@
 import { generateText, stepCountIs, type ModelMessage } from "ai";
-import type { MCPClient } from "@ai-sdk/mcp";
 import { createModel } from "./providers.js";
 import { SYSTEM_PROMPT } from "./system-prompt.js";
 import type { Provider } from "../session/types.js";
+import type { McpToolSet } from "../mcp/pool.js";
 import { logger } from "../lib/logger.js";
 
 export interface RouterInput {
@@ -11,7 +11,7 @@ export interface RouterInput {
 	modelName: string;
 	history: ModelMessage[];
 	userMessage: string;
-	mcpClient: MCPClient;
+	tools: McpToolSet;
 }
 
 export interface RouterResult {
@@ -20,10 +20,9 @@ export interface RouterResult {
 }
 
 export async function processMessage(input: RouterInput): Promise<RouterResult> {
-	const { provider, apiKey, modelName, history, userMessage, mcpClient } = input;
+	const { provider, apiKey, modelName, history, userMessage, tools } = input;
 
 	const model = createModel(provider, apiKey, modelName);
-	const tools = await mcpClient.tools();
 
 	const messages: ModelMessage[] = [...history, { role: "user", content: userMessage }];
 
@@ -94,6 +93,9 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		throw new Error(`AI error: ${errorMsg}`, { cause: error });
+		throw new Error(
+			`An unexpected error occurred while processing your request. Please try again.`,
+			{ cause: error }
+		);
 	}
 }
