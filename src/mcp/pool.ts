@@ -1,5 +1,6 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { existsSync } from "node:fs";
 import type { MCPClient } from "@ai-sdk/mcp";
 import { createStarkfiMcpClient } from "./client.js";
 import { logger } from "../lib/logger.js";
@@ -40,6 +41,32 @@ export class McpProcessPool {
 
 		const userHome = join(this.dataDir, "users", userId);
 		await mkdir(userHome, { recursive: true });
+
+		// Debug: check if session file exists at expected paths
+		const linuxPath = join(userHome, ".local", "share", "starkfi-nodejs", "session.json");
+		const macPath = join(userHome, "Library", "Application Support", "starkfi-nodejs", "session.json");
+		const linuxExists = existsSync(linuxPath);
+		const macExists = existsSync(macPath);
+		logger.info("MCP spawn — session file check", {
+			userId,
+			userHome,
+			linuxPath,
+			linuxExists,
+			macPath,
+			macExists,
+			platform: process.platform,
+		});
+
+		// List contents of userHome for debugging
+		try {
+			const contents = await readdir(userHome, { recursive: true });
+			logger.info("MCP spawn — userHome contents", {
+				userId,
+				files: contents.slice(0, 50),
+			});
+		} catch {
+			logger.warn("MCP spawn — could not list userHome", { userId });
+		}
 
 		try {
 			const client = await createStarkfiMcpClient({

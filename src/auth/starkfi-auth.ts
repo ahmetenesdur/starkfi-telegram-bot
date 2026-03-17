@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { logger } from "../lib/logger.js";
 
@@ -81,9 +81,23 @@ export async function writeSessionFile(
 		serverUrl,
 	};
 
-	await writeFile(join(dataDir, "session.json"), JSON.stringify(session, null, 2), "utf-8");
-	logger.info("StarkFi session file written", {
-		userHome,
-		address: auth.walletAddress,
-	});
+	const sessionPath = join(dataDir, "session.json");
+	await writeFile(sessionPath, JSON.stringify(session, null, 2), "utf-8");
+
+	// Debug: verify the file was actually written
+	try {
+		const stats = await stat(sessionPath);
+		logger.info("StarkFi session file written", {
+			userHome,
+			dataDir,
+			sessionPath,
+			fileSize: stats.size,
+			address: auth.walletAddress,
+		});
+	} catch (e) {
+		logger.error("Session file write verification FAILED", {
+			sessionPath,
+			error: e instanceof Error ? e.message : String(e),
+		});
+	}
 }
