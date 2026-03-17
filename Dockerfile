@@ -20,4 +20,4 @@ RUN mkdir -p .data && chown -R bot:bot /app
 USER bot
 ENV NODE_ENV=production
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "--env-file=.env", "dist/index.js"]
+CMD ["node", "dist/index.js"]

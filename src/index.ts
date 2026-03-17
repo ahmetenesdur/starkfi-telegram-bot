@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { mkdirSync } from "node:fs";
+import { createServer } from "node:http";
 import { loadConfig } from "./lib/config.js";
 import { logger, setLogLevel } from "./lib/logger.js";
 import { SessionStore } from "./session/store.js";
@@ -46,6 +47,14 @@ async function main(): Promise<void> {
 	logger.info("Starting StarkFi Telegram Bot", {
 		mcpCommand: config.mcpCommand,
 		logLevel: config.logLevel,
+	});
+
+	const port = Number(process.env.PORT) || 8080;
+	createServer((_, res) => {
+		res.writeHead(200);
+		res.end("OK");
+	}).listen(port, () => {
+		logger.info(`Health check server listening on port ${port}`);
 	});
 
 	await bot.launch();
