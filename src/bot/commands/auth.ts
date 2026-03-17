@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { Markup } from "telegraf";
 import type { BotContext } from "../middleware/session.js";
 import { requestLogin, verifyOtp, writeSessionFile } from "../../auth/starkfi-auth.js";
 import type { Config } from "../../lib/config.js";
@@ -42,7 +43,9 @@ export function createEmailHandler(config: Config) {
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth login failed", { userId, error: msg });
-			await ctx.reply(`Login failed: ${msg}\n\nUse /auth to try again.`);
+			await ctx.reply(`Login failed: ${msg}\n\nUse /auth to try again.`, {
+				...Markup.inlineKeyboard([Markup.button.callback("Try Again", "action:auth")]),
+			});
 		}
 	};
 }
@@ -74,7 +77,9 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth verify failed", { userId, error: msg });
-			await ctx.reply(`Verification failed: ${msg}\n\nUse /auth to try again.`);
+			await ctx.reply(`Verification failed: ${msg}\n\nUse /auth to try again.`, {
+				...Markup.inlineKeyboard([Markup.button.callback("Try Again", "action:auth")]),
+			});
 		}
 	};
 }
