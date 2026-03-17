@@ -94,6 +94,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		throw new Error(`An unexpected error occurred while processing your request. Please try again.`, { cause: error });
+		throw new Error(`AI error: ${errorMsg}`, { cause: error });
 	}
 }

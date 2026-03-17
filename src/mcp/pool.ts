@@ -53,7 +53,7 @@ export class McpProcessPool {
 				userId,
 				error: error instanceof Error ? error.message : String(error),
 			});
-			throw new Error("Failed to connect to StarkFi service. Please try again.", { cause: error });
+			throw error;
 		}
 	}
 
