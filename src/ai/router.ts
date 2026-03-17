@@ -12,6 +12,8 @@ export interface RouterInput {
 	history: ModelMessage[];
 	userMessage: string;
 	mcpClient: MCPClient;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	tools: Record<string, any>;
 }
 
 export interface RouterResult {
@@ -20,10 +22,9 @@ export interface RouterResult {
 }
 
 export async function processMessage(input: RouterInput): Promise<RouterResult> {
-	const { provider, apiKey, modelName, history, userMessage, mcpClient } = input;
+	const { provider, apiKey, modelName, history, userMessage, tools } = input;
 
 	const model = createModel(provider, apiKey, modelName);
-	const tools = await mcpClient.tools();
 
 	const messages: ModelMessage[] = [...history, { role: "user", content: userMessage }];
 

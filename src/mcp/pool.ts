@@ -4,8 +4,11 @@ import type { MCPClient } from "@ai-sdk/mcp";
 import { createStarkfiMcpClient } from "./client.js";
 import { logger } from "../lib/logger.js";
 
+type McpToolSet = Awaited<ReturnType<MCPClient["tools"]>>;
+
 interface PoolEntry {
 	client: MCPClient;
+	tools: McpToolSet;
 	lastUsed: number;
 }
 
@@ -20,7 +23,7 @@ export class McpProcessPool {
 		private idleTimeoutMs = 300_000
 	) {}
 
-	async getClient(userId: string): Promise<MCPClient> {
+	async getClient(userId: string): Promise<{ client: MCPClient; tools: McpToolSet }> {
 		const entry = this.pool.get(userId);
 		if (entry) {
 			// Validate the cached client is still alive
@@ -32,7 +35,7 @@ export class McpProcessPool {
 				return this.getClient(userId);
 			}
 			entry.lastUsed = Date.now();
-			return entry.client;
+			return { client: entry.client, tools: entry.tools };
 		}
 
 		const userHome = join(this.dataDir, "users", userId);
@@ -45,9 +48,11 @@ export class McpProcessPool {
 				userHome,
 			});
 
-			this.pool.set(userId, { client, lastUsed: Date.now() });
+			const tools = await client.tools();
+
+			this.pool.set(userId, { client, tools, lastUsed: Date.now() });
 			logger.info("MCP process spawned", { userId });
-			return client;
+			return { client, tools };
 		} catch (error) {
 			logger.error("Failed to spawn MCP process", {
 				userId,
