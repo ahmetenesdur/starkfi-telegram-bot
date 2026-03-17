@@ -140,7 +140,7 @@ sudo systemctl restart starkfi-bot   # restart
 - [ ] `BOT_ENCRYPTION_SECRET` is a unique, random 64-char hex string
 - [ ] `.env` is in `.gitignore`
 - [ ] Bot runs as a non-root user
-- [ ] Firewall allows only outbound HTTPS (443) — no inbound ports needed
+- [ ] If using webhook: `WEBHOOK_SECRET` is set and `WEBHOOK_URL` does not contain the bot token
 
 ### Reliability
 

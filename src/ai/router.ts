@@ -1,7 +1,7 @@
 import { generateText, stepCountIs, type ModelMessage } from "ai";
 import { createModel } from "./providers.js";
 import { SYSTEM_PROMPT } from "./system-prompt.js";
-import type { Provider } from "../session/types.js";
+import { PROVIDER_LABELS, type Provider } from "../session/types.js";
 import type { McpToolSet } from "../mcp/pool.js";
 import { logger } from "../lib/logger.js";
 
@@ -76,6 +76,8 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 		const errorMsg = error instanceof Error ? error.message : String(error);
 		logger.error("AI request failed", { provider, modelName, error: errorMsg });
 
+		const label = PROVIDER_LABELS[provider] ?? provider;
+
 		if (errorMsg.includes("401") || errorMsg.includes("Unauthorized")) {
 			throw new Error("API key is invalid or expired. Use /setup to configure a new key.", {
 				cause: error,
@@ -83,14 +85,14 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 		}
 		if (errorMsg.includes("429") || errorMsg.includes("rate")) {
 			throw new Error(
-				`${provider} rate limit exceeded — your API key has hit its usage limit. ` +
+				`${label} rate limit exceeded — your API key has hit its usage limit. ` +
 					"Please wait a minute and try again, or upgrade your plan.",
 				{ cause: error }
 			);
 		}
 		if (errorMsg.includes("insufficient_quota")) {
 			throw new Error(
-				`Your ${provider} API quota is exhausted. Check your billing at your provider dashboard.`,
+				`Your ${label} API quota is exhausted. Check your billing at your provider dashboard.`,
 				{ cause: error }
 			);
 		}

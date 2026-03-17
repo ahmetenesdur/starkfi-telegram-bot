@@ -32,14 +32,16 @@ cp .env.example .env
 
 ### Optional
 
-| Variable                | Default                       | Description                          |
-| ----------------------- | ----------------------------- | ------------------------------------ |
-| `STARKFI_MCP_COMMAND`   | `npx`                         | Command to spawn StarkFi MCP server  |
-| `STARKFI_MCP_ARGS`      | `-y,starkfi@latest,mcp-start` | Comma-separated args for MCP command |
-| `LOG_LEVEL`             | `info`                        | `debug`, `info`, `warn`, or `error`  |
-| `MAX_HISTORY`           | `20`                          | Max messages kept per user           |
-| `RATE_LIMIT_PER_MINUTE` | `30`                          | Per-user rate limit                  |
-| `MCP_IDLE_TIMEOUT_MS`   | `300000`                      | Idle MCP process timeout (ms)        |
+| Variable                | Default                       | Description                                         |
+| ----------------------- | ----------------------------- | --------------------------------------------------- |
+| `WEBHOOK_URL`           | —                             | Public URL for webhook mode (omit for long polling)  |
+| `WEBHOOK_SECRET`        | —                             | Webhook secret token (required with `WEBHOOK_URL`)   |
+| `STARKFI_MCP_COMMAND`   | `npx`                         | Command to spawn StarkFi MCP server                  |
+| `STARKFI_MCP_ARGS`      | `-y,starkfi@latest,mcp-start` | Comma-separated args for MCP command                 |
+| `LOG_LEVEL`             | `info`                        | `debug`, `info`, `warn`, or `error`                  |
+| `MAX_HISTORY`           | `20`                          | Max messages kept per user                           |
+| `RATE_LIMIT_PER_MINUTE` | `30`                          | Per-user rate limit                                  |
+| `MCP_IDLE_TIMEOUT_MS`   | `300000`                      | Idle MCP process timeout (ms)                        |
 
 ## 4. Install and Run
 
