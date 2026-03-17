@@ -1,4 +1,4 @@
-import { Telegraf } from "telegraf";
+import { Telegraf, Markup } from "telegraf";
 import type { Config } from "../lib/config.js";
 import type { SessionStore } from "../session/store.js";
 import type { McpProcessPool } from "../mcp/pool.js";
@@ -50,7 +50,8 @@ export function createBot(
 		if (!ctx.userSession) {
 			await ctx.reply(
 				"No AI model configured yet.\n\n" +
-					"Use /setup to choose your provider, model, and enter your API key."
+					"Use /setup to choose your provider, model, and enter your API key.",
+				Markup.inlineKeyboard([Markup.button.callback("Setup AI Model", "action:setup")])
 			);
 			return;
 		}

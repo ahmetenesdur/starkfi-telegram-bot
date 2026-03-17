@@ -94,6 +94,9 @@ export async function handleApiKeyInput(
 			`Model: \`${model?.label ?? finalModel}\`\n\n` +
 			"Next step: Use /auth to log in to your StarkFi account.\n" +
 			'Or just start chatting — try _"What can you do?"_',
-		{ parse_mode: "Markdown" }
+		{
+			parse_mode: "Markdown",
+			...Markup.inlineKeyboard([Markup.button.callback("Log In to StarkFi", "action:auth")]),
+		}
 	);
 }

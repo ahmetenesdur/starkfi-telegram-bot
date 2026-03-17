@@ -59,7 +59,16 @@ export function createMessageHandler(
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
-				await ctx.reply(errorMsg);
+
+				const isUserFriendly =
+					errorMsg.includes("API key") ||
+					errorMsg.includes("Rate limit") ||
+					errorMsg.includes("quota") ||
+					errorMsg.includes("Please try again") ||
+					errorMsg.includes("Use /setup");
+				await ctx.reply(
+					isUserFriendly ? errorMsg : "Something went wrong. Please try again."
+				);
 			} finally {
 				clearInterval(typingInterval);
 			}
