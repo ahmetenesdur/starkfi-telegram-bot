@@ -42,7 +42,37 @@ The `bot-data` volume persists the SQLite database and user sessions across rest
 
 ---
 
-## Option 2: PM2
+## Option 2: AWS App Runner
+
+### Source-Based Deployment
+
+1. Create a new App Runner service → **Source code repository**.
+2. Connect your GitHub repository and select the `main` branch.
+3. Configure build settings:
+
+| Setting | Value |
+| --------------- | ---------------------------------------------------- |
+| Runtime         | Node.js 20                                           |
+| Build command   | `npm install -g pnpm && pnpm install && pnpm build`  |
+| Start command   | `node dist/index.js`                                 |
+| Port            | `8080`                                               |
+
+4. Add environment variables in the **Configuration** tab:
+   - `TELEGRAM_BOT_TOKEN`
+   - `BOT_ENCRYPTION_SECRET`
+   - `STARKFI_SERVER_URL`
+
+5. Set **Auto scaling** → min: `1`, max: `1`.
+
+> **Important:** Telegram allows only one long-polling connection per bot token. Running multiple instances will cause message conflicts. Always keep App Runner pinned to a single instance.
+
+### Health Check
+
+The bot starts an HTTP server on port 8080 that responds `200 OK`. App Runner uses this for health checks automatically — no extra configuration needed.
+
+---
+
+## Option 3: PM2
 
 ### Setup
 
@@ -90,7 +120,7 @@ pm2 start ecosystem.config.cjs
 
 ---
 
-## Option 3: systemd
+## Option 4: systemd
 
 ### Setup
 
@@ -168,6 +198,7 @@ pnpm build
 docker compose up -d --build        # Docker
 pm2 restart starkfi-bot             # PM2
 sudo systemctl restart starkfi-bot  # systemd
+# App Runner: auto-deploys on push if connected to GitHub
 ```
 
 ---
@@ -178,6 +209,7 @@ sudo systemctl restart starkfi-bot  # systemd
 
 - Verify `TELEGRAM_BOT_TOKEN` is correct.
 - Ensure no other instance is running — Telegram allows one long-polling connection per token.
+- If using App Runner, verify scaling is set to min=1, max=1.
 
 **"BOT_ENCRYPTION_SECRET must be a 64-character hex string":**
 

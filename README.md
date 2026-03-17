@@ -31,7 +31,7 @@ See [docs/SETUP.md](docs/SETUP.md) for full configuration and [docs/DEPLOYMENT.m
 | Document                             | Description                                     |
 | ------------------------------------ | ----------------------------------------------- |
 | [Setup](docs/SETUP.md)               | Environment variables, BotFather setup, scripts |
-| [Deployment](docs/DEPLOYMENT.md)     | Docker, PM2, systemd, production checklist      |
+| [Deployment](docs/DEPLOYMENT.md)     | Docker, App Runner, PM2, systemd, production checklist |
 | [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model        |
 | [Commands](docs/COMMANDS.md)         | Bot commands and natural language reference     |
 
