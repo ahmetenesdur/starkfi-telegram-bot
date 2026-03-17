@@ -13,6 +13,6 @@ export function createModel(provider: Provider, apiKey: string, modelName: strin
 		case "gemini":
 			return createGoogleGenerativeAI({ apiKey })(modelName);
 		default:
-			throw new Error(`Unknown provider: ${provider}`);
+			throw new Error("Unsupported AI provider. Use /setup to choose a valid provider.");
 	}
 }
