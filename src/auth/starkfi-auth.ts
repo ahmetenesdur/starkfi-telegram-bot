@@ -78,7 +78,8 @@ export async function writeSessionFile(
 		walletId: auth.walletId,
 		publicKey: auth.walletPublicKey,
 		token: auth.token,
-		serverUrl,
+		// Must end with /sign/hash — starkfi SDK derives paymaster URL from this
+		serverUrl: serverUrl.endsWith("/sign/hash") ? serverUrl : `${serverUrl}/sign/hash`,
 	};
 
 	await writeFile(join(dataDir, "session.json"), JSON.stringify(session, null, 2), "utf-8");
