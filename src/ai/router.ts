@@ -82,13 +82,15 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			});
 		}
 		if (errorMsg.includes("429") || errorMsg.includes("rate")) {
-			throw new Error("Rate limit exceeded. Please wait a moment and try again.", {
-				cause: error,
-			});
+			throw new Error(
+				`${provider} rate limit exceeded — your API key has hit its usage limit. ` +
+					"Please wait a minute and try again, or upgrade your plan.",
+				{ cause: error }
+			);
 		}
 		if (errorMsg.includes("insufficient_quota")) {
 			throw new Error(
-				"Your API quota is exhausted. Check your billing at your AI provider.",
+				`Your ${provider} API quota is exhausted. Check your billing at your provider dashboard.`,
 				{ cause: error }
 			);
 		}

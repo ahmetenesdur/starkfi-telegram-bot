@@ -43,7 +43,7 @@ export function rateLimitMiddleware(limit: number): MiddlewareFn<BotContext> {
 		}
 
 		if (bucket.tokens <= 0) {
-			await ctx.reply("Rate limit exceeded. Please wait a moment and try again.");
+			await ctx.reply("Too many messages — please wait a moment before sending another.");
 			return;
 		}
 

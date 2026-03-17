@@ -62,9 +62,10 @@ export function createMessageHandler(
 
 				const isUserFriendly =
 					errorMsg.includes("API key") ||
-					errorMsg.includes("Rate limit") ||
+					errorMsg.toLowerCase().includes("rate limit") ||
 					errorMsg.includes("quota") ||
 					errorMsg.includes("Please try again") ||
+					errorMsg.includes("upgrade your plan") ||
 					errorMsg.includes("Use /setup");
 				await ctx.reply(
 					isUserFriendly ? errorMsg : "Something went wrong. Please try again."
