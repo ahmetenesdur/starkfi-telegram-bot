@@ -1,68 +1,50 @@
 # Bot Commands
 
-## Setup Commands
+## Setup
 
-### `/start`
+| Command  | Description                               |
+| -------- | ----------------------------------------- |
+| `/start` | Welcome message and onboarding steps      |
+| `/setup` | Configure AI provider, model, and API key |
+| `/auth`  | Log in to StarkFi via email OTP           |
+| `/model` | Switch model or change provider           |
 
-Displays the welcome message and onboarding steps. Shows inline buttons for quick access to setup, auth, and help.
+### `/setup` Flow
 
-### `/setup`
+1. Pick a provider (OpenAI, Claude, or Gemini).
+2. Pick a model from the selected provider.
+3. Send your API key — the bot encrypts it and deletes your message.
 
-Starts the AI model configuration flow:
+### `/auth` Flow
 
-1. User picks a provider (OpenAI, Claude, or Gemini).
-2. User picks a model from the selected provider.
-3. User sends their API key.
-4. The key is encrypted and stored. The user's message containing the key is deleted.
+1. Enter your StarkFi account email.
+2. Enter the verification code sent to your email.
+3. Your wallet address is linked to the session.
 
-### `/auth`
+### `/model` Behavior
 
-Logs in to StarkFi via email OTP:
+- **Same provider:** Switch model without re-entering your API key.
+- **Different provider:** Redirects to `/setup` (new key required).
 
-1. User enters their email address.
-2. StarkFi sends a verification code.
-3. User enters the code.
-4. Wallet address is saved and linked to the session.
+## Session
 
-### `/model`
+| Command      | Description                                     |
+| ------------ | ----------------------------------------------- |
+| `/status`    | View provider, model, wallet, and history count |
+| `/help`      | List commands and example prompts               |
+| `/clear`     | Reset conversation history                      |
+| `/deletekey` | Remove stored API key and end session           |
 
-Switches the AI model or provider. Shows the current provider and model, then:
+## Natural Language
 
-- **Same provider:** Lists other available models. Switching does not require re-entering the API key.
-- **Different provider:** Redirects to `/setup` for full reconfiguration (new key required).
+After setup and auth, send messages in any language. The AI handles the rest.
 
-## Session Commands
-
-### `/status`
-
-Displays current session state:
-
-- AI provider and model name
-- Wallet address (truncated)
-- Conversation history length
-- Active MCP process count
-
-### `/help`
-
-Lists all commands and shows example prompts for each capability (swaps, portfolio, staking, lending, batch ops).
-
-### `/clear`
-
-Resets conversation history for the current user. The AI will have no memory of previous messages.
-
-### `/deletekey`
-
-Removes the stored API key and ends the session. Also cleans up any active MCP process and auth state.
-
-## Natural Language Capabilities
-
-After setup and auth, the bot responds to natural language requests. Examples:
-
-| Request | What Happens |
-|---------|-------------|
-| "What's my balance?" | Calls portfolio tool, returns token balances with USD values |
-| "Swap 0.1 ETH to USDC" | Gets a quote from Fibrous, asks for confirmation, executes swap |
-| "Stake 100 STRK" | Lists available validators, user picks one, executes staking |
-| "Supply 0.5 ETH on Vesu" | Lists lending pools, user picks one, supplies collateral |
-| "Send 50 USDC to 0x04a3..." | Asks for confirmation, executes transfer |
-| "Swap 0.1 ETH to USDC and stake the STRK" | Batch operation — combines multiple actions |
+| Example                   | What Happens                                      |
+| ------------------------- | ------------------------------------------------- |
+| "What's my balance?"      | Returns token balances with USD values            |
+| "Swap 0.1 ETH to USDC"    | Gets a quote, asks for confirmation, executes     |
+| "Stake 100 STRK"          | Lists validators, user picks one, stakes          |
+| "Supply 0.5 ETH on Vesu"  | Lists lending pools, user picks one, supplies     |
+| "Send 50 USDC to 0x04a3…" | Confirms recipient, executes transfer             |
+| "Swap + stake in one tx"  | Batch operation — multiple actions combined       |
+| "Use gasless mode"        | Switches to ERC-20 gas payment via AVNU Paymaster |

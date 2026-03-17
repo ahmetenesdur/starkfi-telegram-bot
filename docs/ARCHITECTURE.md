@@ -2,139 +2,135 @@
 
 ## Overview
 
-The bot bridges Telegram users to Starknet DeFi through AI. Each user provides their own AI model API key, and the bot routes natural language requests through the AI to StarkFi's MCP server.
+The bot connects Telegram users to Starknet DeFi through AI. Each user provides their own AI API key. The bot routes natural language requests through the AI model to StarkFi's MCP server, which executes on-chain operations.
 
 ```
 Telegram User
-    |
-    v
+    │
+    ▼
 Telegraf (Bot Framework)
-    |
-    ├── Middleware: session → rate-limit → auth-guard
-    |
+    │
+    ├── Middleware: session → rate-limit → message-queue
+    │
     ├── Commands: /start, /setup, /auth, /model, /status, /help, /clear, /deletekey
-    |
+    │
     └── Message Handler
-            |
-            v
+            │
+            ▼
         AI Router (Vercel AI SDK)
-            |
+            │
             ├── Provider: OpenAI / Anthropic / Google
-            |
-            └── Tools: MCP Client
-                    |
-                    v
-                StarkFi MCP Server (per-user child process)
-                    |
-                    v
+            │
+            └── Tools: StarkFi MCP Client
+                    │
+                    ▼
+                StarkFi MCP Server (per-user process)
+                    │
+                    ▼
                 Starknet Blockchain
 ```
 
-## Layers
+## Project Structure
 
-### Core Infrastructure (`src/lib/`)
+### `src/lib/` — Core Infrastructure
 
-- **config.ts** — Environment variable loading and validation.
-- **logger.ts** — Structured JSON logger with level filtering.
-- **format.ts** — Telegram message chunking and Markdown escaping.
+| File        | Purpose                                         |
+| ----------- | ----------------------------------------------- |
+| `config.ts` | Environment variable loading and validation     |
+| `logger.ts` | Structured JSON logger with level filtering     |
+| `format.ts` | Telegram message chunking and Markdown escaping |
 
-### Session Layer (`src/session/`)
+### `src/session/` — Session Layer
 
-- **types.ts** — Session, auth state, and provider type definitions.
-- **crypto.ts** — AES-256-GCM encryption/decryption for API keys at rest.
-- **store.ts** — SQLite-backed session store using better-sqlite3 with WAL mode.
+| File        | Purpose                                                   |
+| ----------- | --------------------------------------------------------- |
+| `types.ts`  | Session, auth state, and provider type definitions        |
+| `crypto.ts` | AES-256-GCM encryption for API keys at rest               |
+| `store.ts`  | SQLite store with WAL mode and prepared statement caching |
 
-### MCP Layer (`src/mcp/`)
+### `src/mcp/` — MCP Layer
 
-- **client.ts** — Spawns a StarkFi MCP child process via `Experimental_StdioMCPTransport`.
-- **pool.ts** — Manages per-user MCP process lifecycle with idle timeouts and cleanup.
+| File        | Purpose                                              |
+| ----------- | ---------------------------------------------------- |
+| `client.ts` | Spawns StarkFi MCP child process via stdio transport |
+| `pool.ts`   | Per-user process lifecycle with idle cleanup         |
 
-### AI Layer (`src/ai/`)
+### `src/ai/` — AI Layer
 
-- **providers.ts** — Factory function that creates the appropriate AI SDK model instance.
-- **router.ts** — Sends user messages + MCP tools to the AI, returns the response.
-- **system-prompt.ts** — The system prompt defining the bot's behavior and constraints.
+| File               | Purpose                                            |
+| ------------------ | -------------------------------------------------- |
+| `providers.ts`     | Creates the appropriate AI SDK model instance      |
+| `router.ts`        | Sends user messages + MCP tools to the AI model    |
+| `system-prompt.ts` | Defines the bot's behavior, rules, and constraints |
 
-### Authentication (`src/auth/`)
+### `src/auth/` — Authentication
 
-- **starkfi-auth.ts** — StarkFi email/OTP login flow and session file management.
+| File              | Purpose                                     |
+| ----------------- | ------------------------------------------- |
+| `starkfi-auth.ts` | Email/OTP login and session file management |
 
-### Bot Core (`src/bot/`)
+### `src/bot/` — Bot Core
 
-- **bot.ts** — Telegraf instance setup, middleware stack, command registration.
-- **middleware/** — Session loading, rate limiting, message queue.
-- **commands/** — Individual command handlers (start, setup, auth, model, etc.).
-- **handlers/** — Callback query routing and text message processing.
+| File          | Purpose                                                |
+| ------------- | ------------------------------------------------------ |
+| `bot.ts`      | Telegraf setup, middleware stack, command registration |
+| `middleware/` | Session loading, rate limiting, message queue          |
+| `commands/`   | Individual command handlers                            |
+| `handlers/`   | Callback queries and text message processing           |
 
 ## Security Model
 
-### API Key Storage
+### API Key Encryption
 
-User API keys are encrypted with AES-256-GCM before storage in SQLite. The encryption secret is a 32-byte key derived from `BOT_ENCRYPTION_SECRET`. Keys are decrypted only at the moment of an AI request and never held in memory longer than necessary.
+User API keys are encrypted with AES-256-GCM before storage in SQLite. The key is derived from `BOT_ENCRYPTION_SECRET` (32 bytes). Keys are decrypted only at the moment of an AI request and never held in memory longer than necessary.
 
 ### Per-User Isolation
 
-Each user gets a dedicated MCP child process running with an isolated `HOME` directory (`/.data/users/{userId}/`). This ensures:
+Each user gets a dedicated MCP child process with an isolated `HOME` directory (`.data/users/{userId}/`). This ensures:
 
-- Separate StarkFi session files per user.
-- No cross-contamination of wallet credentials between users.
-- Independent process lifecycle — one user's crash doesn't affect others.
+- Separate StarkFi session files per user
+- No cross-contamination of wallet credentials
+- Independent process lifecycle — one user's crash doesn't affect others
 
 ### Message Security
 
-- Messages containing API keys are deleted from the chat after processing.
-- Rate limiting prevents abuse (configurable per-minute limit).
-- A message queue serializes per-user requests to prevent race conditions.
+- Messages containing API keys are deleted after processing
+- Token-bucket rate limiting prevents abuse
+- A per-user message queue serializes requests to prevent race conditions
 
-## Data Flow
+## Data Flows
 
 ### Setup Flow
 
 ```
-User sends /setup
-  → Bot shows provider selection (inline keyboard)
-  → User picks provider (callback query)
-  → Bot shows model selection for chosen provider
-  → User picks model (callback query)
-  → Bot asks for API key
-  → User sends API key
-  → Bot encrypts key, stores in SQLite, deletes user's message
+/setup → provider selection → model selection → API key input
+       → encrypt key → store in SQLite → delete user's key message
 ```
 
 ### Message Flow
 
 ```
-User sends a text message
-  → Session middleware loads user session from SQLite
-  → Rate limiter checks and decrements token bucket
-  → Auth guard verifies session exists
-  → Message queue serializes the request
-  → AI Router: decrypt API key, get/spawn MCP client, call generateText
-  → AI responds (may invoke MCP tools for on-chain operations)
-  → Bot sends chunked response back to Telegram
-  → Updated history saved to SQLite
+Text message → load session → rate limit check → queue request
+            → decrypt key → get/spawn MCP client → generateText
+            → AI responds (may call MCP tools) → chunk response → send
+            → save updated history
 ```
 
-### Auth Flow (StarkFi Wallet)
+### Auth Flow
 
 ```
-User sends /auth
-  → Bot asks for email
-  → User sends email → requestLogin() calls StarkFi API
-  → Bot asks for OTP
-  → User sends code → verifyOtp() returns wallet address + token
-  → Bot writes session.json to user's isolated HOME
-  → Existing MCP process killed so next request spawns with new credentials
+/auth → email input → requestLogin() → OTP input → verifyOtp()
+      → write session.json to user's HOME → kill old MCP process
 ```
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `telegraf` | Telegram Bot API framework |
-| `ai` | Vercel AI SDK — unified LLM interface |
-| `@ai-sdk/mcp` | MCP client integration for AI SDK |
-| `@ai-sdk/openai` | OpenAI provider adapter |
-| `@ai-sdk/anthropic` | Anthropic (Claude) provider adapter |
-| `@ai-sdk/google` | Google (Gemini) provider adapter |
-| `better-sqlite3` | SQLite driver for session storage |
+| Package             | Purpose                               |
+| ------------------- | ------------------------------------- |
+| `telegraf`          | Telegram Bot API framework            |
+| `ai`                | Vercel AI SDK — unified LLM interface |
+| `@ai-sdk/mcp`       | MCP client for AI SDK                 |
+| `@ai-sdk/openai`    | OpenAI provider                       |
+| `@ai-sdk/anthropic` | Anthropic (Claude) provider           |
+| `@ai-sdk/google`    | Google (Gemini) provider              |
+| `better-sqlite3`    | SQLite driver for session storage     |

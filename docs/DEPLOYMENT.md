@@ -1,22 +1,14 @@
 # Deployment Guide
 
-This guide covers getting the bot running in production. Choose the method that fits your infrastructure.
-
----
-
 ## Prerequisites
 
-Before deploying, make sure you have:
-
-1. A `.env` file with all required variables configured (see [SETUP.md](SETUP.md)).
-2. A successful local test — run `pnpm dev` and verify the bot responds in Telegram.
-3. Node.js 18+ installed on your server (unless using Docker).
+1. A configured `.env` file (see [SETUP.md](SETUP.md)).
+2. A successful local test — run `pnpm dev` and verify the bot responds.
+3. Node.js 18+ on your server (unless using Docker).
 
 ---
 
 ## Option 1: Docker (Recommended)
-
-The project includes a multi-stage Dockerfile that builds a minimal production image.
 
 ### Build and Run
 
@@ -25,97 +17,70 @@ docker build -t starkfi-bot .
 docker run -d --name starkfi-bot --env-file .env --restart unless-stopped starkfi-bot
 ```
 
-### Check Logs
-
-```bash
-docker logs -f starkfi-bot
-```
-
-### Stop and Remove
-
-```bash
-docker stop starkfi-bot
-docker rm starkfi-bot
-```
-
 ### Docker Compose
-
-For easier management, create a `docker-compose.yml`:
 
 ```yaml
 services:
-  bot:
-    build: .
-    env_file: .env
-    restart: unless-stopped
-    volumes:
-      - bot-data:/app/.data
+    bot:
+        build: .
+        env_file: .env
+        restart: unless-stopped
+        volumes:
+            - bot-data:/app/.data
 
 volumes:
-  bot-data:
+    bot-data:
 ```
 
 ```bash
-docker compose up -d
-docker compose logs -f
-docker compose down
+docker compose up -d        # start
+docker compose logs -f      # logs
+docker compose down         # stop
 ```
 
-The `bot-data` volume persists the SQLite database and user session files across container restarts.
+The `bot-data` volume persists the SQLite database and user sessions across restarts.
 
 ---
 
 ## Option 2: PM2
 
-[PM2](https://pm2.keymetrics.io/) is a process manager with auto-restart, log management, and monitoring.
-
-### Install PM2
+### Setup
 
 ```bash
 npm install -g pm2
-```
-
-### Build and Start
-
-```bash
 pnpm build
 pm2 start dist/index.js --name starkfi-bot
 ```
 
-### Useful Commands
+### Commands
 
 ```bash
 pm2 status              # process status
 pm2 logs starkfi-bot    # tail logs
 pm2 restart starkfi-bot # restart
 pm2 stop starkfi-bot    # stop
-pm2 delete starkfi-bot  # remove from PM2
 ```
 
 ### Auto-start on Boot
 
 ```bash
-pm2 startup
+pm2 startup   # generates a platform-specific command — run what it outputs
 pm2 save
 ```
 
-PM2 generates a platform-specific command to register itself as a system service. Run the command it outputs— this ensures the bot restarts after server reboots.
-
 ### Ecosystem File (Optional)
 
-Create `ecosystem.config.cjs` for more control:
-
 ```js
+// ecosystem.config.cjs
 module.exports = {
-  apps: [{
-    name: "starkfi-bot",
-    script: "dist/index.js",
-    env: {
-      NODE_ENV: "production",
-    },
-    max_memory_restart: "256M",
-    log_date_format: "YYYY-MM-DD HH:mm:ss",
-  }],
+	apps: [
+		{
+			name: "starkfi-bot",
+			script: "dist/index.js",
+			env: { NODE_ENV: "production" },
+			max_memory_restart: "256M",
+		},
+	],
 };
 ```
 
@@ -127,17 +92,10 @@ pm2 start ecosystem.config.cjs
 
 ## Option 3: systemd
 
-For servers running systemd (most Linux distributions).
-
-### Build
+### Setup
 
 ```bash
 pnpm build
-```
-
-### Create Service File
-
-```bash
 sudo nano /etc/systemd/system/starkfi-bot.service
 ```
 
@@ -159,65 +117,56 @@ EnvironmentFile=/home/deploy/starkfi-telegram-bot/.env
 WantedBy=multi-user.target
 ```
 
-Adjust `User`, `WorkingDirectory`, and `EnvironmentFile` paths to match your setup.
+> Adjust `User`, `WorkingDirectory`, and `EnvironmentFile` to match your setup.
 
-### Enable and Start
+### Commands
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable starkfi-bot
 sudo systemctl start starkfi-bot
-```
 
-### Manage
-
-```bash
-sudo systemctl status starkfi-bot   # check status
-sudo journalctl -u starkfi-bot -f   # tail logs
-sudo systemctl restart starkfi-bot  # restart
-sudo systemctl stop starkfi-bot     # stop
+sudo systemctl status starkfi-bot    # status
+sudo journalctl -u starkfi-bot -f    # logs
+sudo systemctl restart starkfi-bot   # restart
 ```
 
 ---
 
 ## Production Checklist
 
-Before going live, verify these items:
-
 ### Security
 
-- [ ] `BOT_ENCRYPTION_SECRET` is a unique, randomly generated 64-char hex string.
-- [ ] `.env` file is not committed to version control (listed in `.gitignore`).
-- [ ] The bot process runs as a non-root user.
-- [ ] The server has a firewall — the bot only needs outbound HTTPS (port 443) for Telegram and StarkFi APIs. No inbound ports are required (long polling mode).
+- [ ] `BOT_ENCRYPTION_SECRET` is a unique, random 64-char hex string
+- [ ] `.env` is in `.gitignore`
+- [ ] Bot runs as a non-root user
+- [ ] Firewall allows only outbound HTTPS (443) — no inbound ports needed
 
 ### Reliability
 
-- [ ] The process manager is configured to auto-restart on crash.
-- [ ] The service starts automatically on server boot.
-- [ ] Log output is captured and rotated (PM2 handles this; for systemd, journald rotates automatically).
-- [ ] The SQLite database directory (`.data/`) is on persistent storage.
+- [ ] Process auto-restarts on crash
+- [ ] Service starts on boot
+- [ ] Logs are captured and rotated
+- [ ] `.data/` is on persistent storage
 
 ### Performance
 
-- [ ] `NODE_ENV=production` is set (the Dockerfile does this automatically).
-- [ ] `LOG_LEVEL` is set to `warn` or `error` in production to reduce disk I/O.
-- [ ] `MCP_IDLE_TIMEOUT_MS` is tuned for your expected user activity — lower values free memory faster, higher values avoid MCP respawn latency.
+- [ ] `NODE_ENV=production` is set
+- [ ] `LOG_LEVEL=warn` or `error` in production
+- [ ] `MCP_IDLE_TIMEOUT_MS` tuned for expected activity
 
 ---
 
 ## Updating
-
-To deploy a new version:
 
 ```bash
 git pull origin main
 pnpm install
 pnpm build
 
-# Then restart using your chosen method:
-docker compose up -d --build     # Docker
-pm2 restart starkfi-bot          # PM2
+# Restart with your chosen method:
+docker compose up -d --build        # Docker
+pm2 restart starkfi-bot             # PM2
 sudo systemctl restart starkfi-bot  # systemd
 ```
 
@@ -225,19 +174,20 @@ sudo systemctl restart starkfi-bot  # systemd
 
 ## Troubleshooting
 
-**Bot doesn't respond to messages:**
-- Check that `TELEGRAM_BOT_TOKEN` is correct.
-- Ensure no other instance of the bot is running — Telegram only allows one long-polling connection per token.
-- Check logs for connection errors.
+**Bot doesn't respond:**
+
+- Verify `TELEGRAM_BOT_TOKEN` is correct.
+- Ensure no other instance is running — Telegram allows one long-polling connection per token.
 
 **"BOT_ENCRYPTION_SECRET must be a 64-character hex string":**
-- Regenerate the secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-- Make sure the value is exactly 64 characters (no spaces or newlines).
+
+- Regenerate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 
 **MCP process fails to spawn:**
-- Verify `npx starkfi mcp-start` works manually in the terminal.
-- Check that the server has internet access for npx to download the package.
-- Review debug logs (`LOG_LEVEL=debug`) for the spawn error.
 
-**SQLite errors on container restart:**
-- Make sure the `.data/` directory is mounted as a volume so it persists across container recreations.
+- Test manually: `npx -y starkfi@latest mcp-start`.
+- Set `LOG_LEVEL=debug` for detailed error output.
+
+**SQLite errors on restart:**
+
+- Mount `.data/` as a persistent volume (`docker-compose.yml` example above).

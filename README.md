@@ -1,48 +1,45 @@
 # StarkFi Telegram Bot
 
-AI-powered Telegram bot for StarkFi DeFi on Starknet. Users choose their own AI model (OpenAI, Claude, or Gemini) and provide their own API key — no shared keys, no centralized AI billing.
+AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Users bring their own AI model — OpenAI, Claude, or Gemini — and their own API key. No shared keys, no centralized billing.
 
-## What It Does
+## Features
 
-- **Token Swaps** — Natural language trading via Fibrous DEX aggregator
-- **Staking** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC) across validators
-- **Lending** — Vesu V2: supply, borrow, repay, withdraw, close positions
-- **Portfolio** — Wallet balances with USD valuations and position health
-- **Batch Operations** — Combine swap + stake + supply + send in one transaction
-- **Gas Abstraction** — Gasfree (sponsored) and gasless (ERC-20 fee) modes
+- **Swap** — DEX-aggregated trading via Fibrous
+- **Stake** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC)
+- **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
+- **Portfolio** — Balances with USD valuations and position health
+- **Batch** — Combine swap + stake + supply + send in one transaction
+- **Gas Modes** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
 
 ## Quick Start
 
 ```bash
-# 1. Clone and install
 git clone https://github.com/ahmetenesdur/starkfi-telegram-bot.git
 cd starkfi-telegram-bot
 pnpm install
 
-# 2. Configure (see docs/SETUP.md for details)
 cp .env.example .env
-# Edit .env with your TELEGRAM_BOT_TOKEN, BOT_ENCRYPTION_SECRET, STARKFI_SERVER_URL
+# Fill in TELEGRAM_BOT_TOKEN, BOT_ENCRYPTION_SECRET, STARKFI_SERVER_URL
 
-# 3. Run
 pnpm dev
 ```
 
-For production deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+See [docs/SETUP.md](docs/SETUP.md) for full configuration and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for production.
 
-## Documentation
+## Docs
 
-| Document | Contents |
-|----------|----------|
-| [Setup Guide](docs/SETUP.md) | Environment variables, BotFather setup, configuration reference |
-| [Deployment Guide](docs/DEPLOYMENT.md) | Docker, PM2, systemd, production checklist |
-| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model |
-| [Bot Commands](docs/COMMANDS.md) | Complete command and capability reference |
+| Document                             | Description                                     |
+| ------------------------------------ | ----------------------------------------------- |
+| [Setup](docs/SETUP.md)               | Environment variables, BotFather setup, scripts |
+| [Deployment](docs/DEPLOYMENT.md)     | Docker, PM2, systemd, production checklist      |
+| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model        |
+| [Commands](docs/COMMANDS.md)         | Bot commands and natural language reference     |
 
 ## Requirements
 
 - Node.js 18+
-- A Telegram bot token from [@BotFather](https://t.me/BotFather)
-- An API key from at least one AI provider (OpenAI, Claude, or Gemini)
+- Telegram bot token from [@BotFather](https://t.me/BotFather)
+- API key from OpenAI, Anthropic, or Google
 
 ## License
 
