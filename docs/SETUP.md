@@ -40,6 +40,7 @@ cp .env.example .env
 | `MAX_HISTORY`           | `20`                          | Max messages kept per user           |
 | `RATE_LIMIT_PER_MINUTE` | `30`                          | Per-user rate limit                  |
 | `MCP_IDLE_TIMEOUT_MS`   | `300000`                      | Idle MCP process timeout (ms)        |
+| `PORT`                  | `8080`                        | Health check HTTP server port        |
 
 ## 4. Install and Run
 

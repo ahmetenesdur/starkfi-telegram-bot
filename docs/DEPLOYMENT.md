@@ -67,10 +67,15 @@ Add these in the **Variables** tab:
 | `BOT_ENCRYPTION_SECRET` | Yes      | 64-char hex string for AES-256-GCM |
 | `STARKFI_SERVER_URL`    | Yes      | StarkFi authentication server URL  |
 | `LOG_LEVEL`             | No       | `debug`, `info`, `warn`, or `error` (default: `info`) |
+| `PORT`                  | No       | Health check HTTP server port (default: `8080`)        |
 
 ### How It Works
 
 Railway deploys a single container instance. The bot uses long polling — no public URL or webhook needed. Auto-deploys on every push to `main`.
+
+### Health Check
+
+The bot starts a lightweight HTTP server on `PORT` (default: `8080`) that returns `200 OK` at any path. Railway uses this to verify the service is alive — no additional configuration needed.
 
 ---
 
