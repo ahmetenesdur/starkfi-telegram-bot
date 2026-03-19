@@ -56,7 +56,12 @@ export class SessionStore {
 	}
 
 	/** Decrypt API key using old 16-byte IV format (pre-migration) */
-	private static decryptOldFormat(iv: Buffer, authTag: Buffer, encrypted: Buffer, secret: string): string {
+	private static decryptOldFormat(
+		iv: Buffer,
+		authTag: Buffer,
+		encrypted: Buffer,
+		secret: string
+	): string {
 		const key = Buffer.from(secret, "hex");
 		const decipher = createDecipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
 		decipher.setAuthTag(authTag);
@@ -65,9 +70,7 @@ export class SessionStore {
 
 	/** Migrate from old 3-BLOB schema to single TEXT column if needed */
 	private migrateIfNeeded(encryptionSecret?: string): void {
-		const columns = this.db
-			.prepare("PRAGMA table_info(sessions)")
-			.all() as { name: string }[];
+		const columns = this.db.prepare("PRAGMA table_info(sessions)").all() as { name: string }[];
 
 		const colNames = columns.map((c) => c.name);
 
@@ -80,17 +83,19 @@ export class SessionStore {
 			logger.info("Migrating session store from BLOB to TEXT schema");
 
 			const oldRows = this.db
-				.prepare("SELECT user_id, provider, encrypted_key, iv, auth_tag, model_name, starkfi_addr, history FROM sessions")
+				.prepare(
+					"SELECT user_id, provider, encrypted_key, iv, auth_tag, model_name, starkfi_addr, history FROM sessions"
+				)
 				.all() as {
-					user_id: string;
-					provider: string;
-					encrypted_key: Buffer;
-					iv: Buffer;
-					auth_tag: Buffer;
-					model_name: string;
-					starkfi_addr: string | null;
-					history: string;
-				}[];
+				user_id: string;
+				provider: string;
+				encrypted_key: Buffer;
+				iv: Buffer;
+				auth_tag: Buffer;
+				model_name: string;
+				starkfi_addr: string | null;
+				history: string;
+			}[];
 
 			// Drop old tables and recreate
 			this.db.exec("DROP TABLE IF EXISTS sessions");
@@ -128,10 +133,20 @@ export class SessionStore {
 					for (const row of oldRows) {
 						try {
 							const plainKey = SessionStore.decryptOldFormat(
-								row.iv, row.auth_tag, row.encrypted_key, encryptionSecret
+								row.iv,
+								row.auth_tag,
+								row.encrypted_key,
+								encryptionSecret
 							);
 							const newEncrypted = encrypt(plainKey, encryptionSecret);
-							insert.run(row.user_id, row.provider, newEncrypted, row.model_name, row.starkfi_addr, row.history);
+							insert.run(
+								row.user_id,
+								row.provider,
+								newEncrypted,
+								row.model_name,
+								row.starkfi_addr,
+								row.history
+							);
 						} catch (err) {
 							logger.warn("Failed to migrate session — skipping", {
 								userId: row.user_id,
@@ -245,7 +260,9 @@ export class SessionStore {
 		if (row.data) {
 			try {
 				Object.assign(base, JSON.parse(row.data as string));
-			} catch { /* ignore corrupt data */ }
+			} catch {
+				/* ignore corrupt data */
+			}
 		}
 		return JSON.stringify(base);
 	}

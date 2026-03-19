@@ -8,7 +8,10 @@ export interface BotContext extends Context {
 	userSession: UserSession | null;
 }
 
-export function sessionMiddleware(store: SessionStore, encryptionSecret: string): MiddlewareFn<BotContext> {
+export function sessionMiddleware(
+	store: SessionStore,
+	encryptionSecret: string
+): MiddlewareFn<BotContext> {
 	return async (ctx, next) => {
 		ctx.store = store;
 		ctx.encryptionSecret = encryptionSecret;

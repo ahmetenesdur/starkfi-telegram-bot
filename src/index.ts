@@ -60,7 +60,10 @@ async function main(): Promise<void> {
 				hookPath: webhookPath,
 			},
 		});
-		logger.info("Bot started (webhook mode)", { domain: config.webhookDomain, port: config.port });
+		logger.info("Bot started (webhook mode)", {
+			domain: config.webhookDomain,
+			port: config.port,
+		});
 	} else {
 		await bot.launch();
 		logger.info("Bot started (polling mode)");

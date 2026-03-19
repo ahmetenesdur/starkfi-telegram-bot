@@ -4,7 +4,10 @@ const configSchema = z.object({
 	telegramBotToken: z.string().min(1, "TELEGRAM_BOT_TOKEN is required"),
 	encryptionSecret: z
 		.string()
-		.regex(/^[0-9a-f]{64}$/i, "BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)"),
+		.regex(
+			/^[0-9a-f]{64}$/i,
+			"BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)"
+		),
 	starkfiServerUrl: z.string().url("STARKFI_SERVER_URL must be a valid URL"),
 	mcpCommand: z.string().default("npx"),
 	mcpArgs: z.array(z.string()).default(["-y", "starkfi@latest", "mcp-start"]),

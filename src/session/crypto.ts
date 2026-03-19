@@ -6,9 +6,7 @@ const TAG_LEN = 16;
 
 function deriveKey(secret: string): Buffer {
 	if (!/^[0-9a-f]{64}$/i.test(secret)) {
-		throw new Error(
-			"BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)"
-		);
+		throw new Error("BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)");
 	}
 	return Buffer.from(secret, "hex");
 }
@@ -19,10 +17,7 @@ export function encrypt(plaintext: string, secret: string): string {
 	const iv = randomBytes(IV_LEN);
 
 	const cipher = createCipheriv(ALGO, key, iv, { authTagLength: TAG_LEN });
-	const encrypted = Buffer.concat([
-		cipher.update(plaintext, "utf8"),
-		cipher.final(),
-	]);
+	const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
 	const tag = cipher.getAuthTag();
 
 	return Buffer.concat([iv, tag, encrypted]).toString("hex");

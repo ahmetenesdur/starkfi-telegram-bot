@@ -100,10 +100,9 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			lowerMsg.includes("permission denied") ||
 			lowerMsg.includes("api key not valid")
 		) {
-			throw new Error(
-				"API key is invalid or expired. Use /setup to configure a new key.",
-				{ cause: error }
-			);
+			throw new Error("API key is invalid or expired. Use /setup to configure a new key.", {
+				cause: error,
+			});
 		}
 
 		// — Rate limit errors —
