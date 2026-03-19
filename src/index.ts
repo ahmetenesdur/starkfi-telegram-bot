@@ -38,6 +38,7 @@ async function main(): Promise<void> {
 		bot.stop(signal);
 		await mcpPool.shutdown();
 		store.close();
+		health?.close();
 		process.exit(0);
 	}
 
@@ -49,16 +50,33 @@ async function main(): Promise<void> {
 		logLevel: config.logLevel,
 	});
 
-	const port = Number(process.env.PORT) || 8080;
-	createServer((_, res) => {
-		res.writeHead(200);
-		res.end("OK");
-	}).listen(port, () => {
-		logger.info(`Health check server listening on port ${port}`);
-	});
+	// ── Launch ──
+	if (config.webhookDomain) {
+		const webhookPath = config.webhookSecretPath ?? `/webhook/${config.telegramBotToken}`;
+		await bot.launch({
+			webhook: {
+				domain: config.webhookDomain,
+				port: config.port,
+				hookPath: webhookPath,
+			},
+		});
+		logger.info("Bot started (webhook mode)", { domain: config.webhookDomain, port: config.port });
+	} else {
+		await bot.launch();
+		logger.info("Bot started (polling mode)");
+	}
 
-	await bot.launch();
-	logger.info("Bot is running — press Ctrl+C to stop");
+	// ── Health check server (only in polling mode — webhook uses its own HTTP server) ──
+	let health: ReturnType<typeof createServer> | null = null;
+	if (!config.webhookDomain) {
+		health = createServer((_, res) => {
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ status: "ok", mcpProcesses: mcpPool.activeCount }));
+		});
+		health.listen(config.port, () => {
+			logger.info(`Health check server listening on port ${config.port}`);
+		});
+	}
 }
 
 main().catch((error) => {

@@ -32,7 +32,7 @@ export function createMessageHandler(
 			}, 4_000);
 
 			try {
-				const apiKey = ctx.store.decryptApiKey(session);
+				const apiKey = ctx.store.decryptApiKey(session, ctx.encryptionSecret);
 				const { tools } = await mcpPool.getClient(userId);
 
 				const result = await processMessage({

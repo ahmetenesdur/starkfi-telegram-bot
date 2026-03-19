@@ -1,4 +1,6 @@
-import type { LogLevel } from "./config.js";
+import type { Config } from "./config.js";
+
+type LogLevel = Config["logLevel"];
 
 const LEVEL_ORDER: Record<LogLevel, number> = {
 	debug: 0,

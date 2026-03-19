@@ -33,15 +33,16 @@ export function createInteractionHandlers(
 
 	/** Handles model selection callbacks. Format: `setupmodel:<provider>:<modelId>` */
 	async function handleSetupModelCallback(ctx: BotContext, data: string): Promise<void> {
-		const parts = data.split(":");
-		const provider = parts[1] as Provider;
-		const modelId = parts[2];
+		const rest = data.slice("setupmodel:".length); // e.g. "openai:gpt-5.4"
+		const sepIdx = rest.indexOf(":");
+		const provider = rest.slice(0, sepIdx) as Provider;
+		const modelId = rest.slice(sepIdx + 1);
 		await handleModelSelection(ctx, provider, modelId);
 	}
 
 	/** Handles in-provider model switch callbacks. Format: `switchmodel:<modelId>` */
 	async function handleSwitchModelCallback(ctx: BotContext, data: string): Promise<void> {
-		const modelId = data.split(":")[1];
+		const modelId = data.slice("switchmodel:".length);
 		const userId = ctx.from?.id?.toString();
 		if (!userId) return;
 

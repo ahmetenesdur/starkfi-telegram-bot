@@ -1,58 +1,53 @@
-export interface Config {
-	telegramBotToken: string;
-	encryptionSecret: string;
-	starkfiServerUrl: string;
-	mcpCommand: string;
-	mcpArgs: string[];
-	logLevel: LogLevel;
-	maxHistory: number;
-	rateLimitPerMinute: number;
-	mcpIdleTimeoutMs: number;
-}
+import { z } from "zod";
 
-export type LogLevel = "debug" | "info" | "warn" | "error";
+const configSchema = z.object({
+	telegramBotToken: z.string().min(1, "TELEGRAM_BOT_TOKEN is required"),
+	encryptionSecret: z
+		.string()
+		.regex(/^[0-9a-f]{64}$/i, "BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)"),
+	starkfiServerUrl: z.string().url("STARKFI_SERVER_URL must be a valid URL"),
+	mcpCommand: z.string().default("npx"),
+	mcpArgs: z.array(z.string()).default(["-y", "starkfi@latest", "mcp-start"]),
+	logLevel: z.enum(["debug", "info", "warn", "error"]).default("info"),
+	maxHistory: z.number().int().positive().default(20),
+	rateLimitPerMinute: z.number().int().positive().default(30),
+	mcpIdleTimeoutMs: z.number().int().positive().default(300_000),
+	webhookDomain: z.string().optional(),
+	webhookSecretPath: z.string().optional(),
+	port: z.number().int().positive().default(8080),
+});
 
-const VALID_LOG_LEVELS = new Set<string>(["debug", "info", "warn", "error"]);
-
-function requireEnv(key: string): string {
-	const value = process.env[key];
-	if (!value) {
-		throw new Error(`Missing required environment variable: ${key}`);
-	}
-	return value;
-}
-
-function parseLogLevel(raw: string | undefined): LogLevel {
-	const level = raw?.toLowerCase();
-	if (level && VALID_LOG_LEVELS.has(level)) return level as LogLevel;
-	return "info";
-}
-
-function parseIntEnv(key: string, fallback: number): number {
-	const raw = process.env[key];
-	if (!raw) return fallback;
-	const parsed = Number(raw);
-	if (Number.isNaN(parsed) || parsed < 0) {
-		throw new Error(`${key} must be a non-negative number, got: "${raw}"`);
-	}
-	return parsed;
-}
+export type Config = z.infer<typeof configSchema>;
 
 export function loadConfig(): Config {
-	const encryptionSecret = requireEnv("BOT_ENCRYPTION_SECRET");
-	if (!/^[0-9a-f]{64}$/i.test(encryptionSecret)) {
-		throw new Error("BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)");
+	const raw = {
+		telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
+		encryptionSecret: process.env.BOT_ENCRYPTION_SECRET ?? "",
+		starkfiServerUrl: process.env.STARKFI_SERVER_URL ?? "",
+		mcpCommand: process.env.STARKFI_MCP_COMMAND ?? "npx",
+		mcpArgs: process.env.STARKFI_MCP_ARGS
+			? process.env.STARKFI_MCP_ARGS.split(",")
+			: ["-y", "starkfi@latest", "mcp-start"],
+		logLevel: process.env.LOG_LEVEL ?? "info",
+		maxHistory: process.env.MAX_HISTORY ? Number(process.env.MAX_HISTORY) : 20,
+		rateLimitPerMinute: process.env.RATE_LIMIT_PER_MINUTE
+			? Number(process.env.RATE_LIMIT_PER_MINUTE)
+			: 30,
+		mcpIdleTimeoutMs: process.env.MCP_IDLE_TIMEOUT_MS
+			? Number(process.env.MCP_IDLE_TIMEOUT_MS)
+			: 300_000,
+		webhookDomain: process.env.WEBHOOK_DOMAIN || undefined,
+		webhookSecretPath: process.env.WEBHOOK_SECRET_PATH || undefined,
+		port: process.env.PORT ? Number(process.env.PORT) : 8080,
+	};
+
+	const result = configSchema.safeParse(raw);
+
+	if (!result.success) {
+		const errors = result.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`);
+		console.error(`Configuration errors:\n${errors.join("\n")}`);
+		process.exit(1);
 	}
 
-	return {
-		telegramBotToken: requireEnv("TELEGRAM_BOT_TOKEN"),
-		encryptionSecret,
-		starkfiServerUrl: requireEnv("STARKFI_SERVER_URL"),
-		mcpCommand: process.env.STARKFI_MCP_COMMAND ?? "npx",
-		mcpArgs: (process.env.STARKFI_MCP_ARGS ?? "-y,starkfi@latest,mcp-start").split(","),
-		logLevel: parseLogLevel(process.env.LOG_LEVEL),
-		maxHistory: parseIntEnv("MAX_HISTORY", 20),
-		rateLimitPerMinute: parseIntEnv("RATE_LIMIT_PER_MINUTE", 30),
-		mcpIdleTimeoutMs: parseIntEnv("MCP_IDLE_TIMEOUT_MS", 300_000),
-	};
+	return result.data;
 }

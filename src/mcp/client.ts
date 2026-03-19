@@ -1,5 +1,5 @@
 import { createMCPClient, type MCPClient } from "@ai-sdk/mcp";
-import { Experimental_StdioMCPTransport } from "@ai-sdk/mcp/mcp-stdio";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { join } from "node:path";
 import { logger } from "../lib/logger.js";
 
@@ -15,8 +15,8 @@ export async function createStarkfiMcpClient(options: McpClientOptions): Promise
 	logger.debug("Spawning MCP process", { command, args, userHome });
 
 	// Force XDG paths so env-paths resolves correctly regardless of os.homedir()
-	const childEnv = {
-		...process.env,
+	const childEnv: Record<string, string> = {
+		...(process.env as Record<string, string>),
 		HOME: userHome,
 		XDG_DATA_HOME: join(userHome, ".local", "share"),
 		XDG_CONFIG_HOME: join(userHome, ".config"),
@@ -24,7 +24,7 @@ export async function createStarkfiMcpClient(options: McpClientOptions): Promise
 		XDG_STATE_HOME: join(userHome, ".local", "state"),
 	};
 
-	const transport = new Experimental_StdioMCPTransport({
+	const transport = new StdioClientTransport({
 		command,
 		args,
 		env: childEnv,
@@ -35,4 +35,3 @@ export async function createStarkfiMcpClient(options: McpClientOptions): Promise
 	logger.info("MCP client connected", { userHome });
 	return client;
 }
-

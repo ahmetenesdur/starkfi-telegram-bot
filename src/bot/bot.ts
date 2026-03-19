@@ -26,7 +26,7 @@ export function createBot(
 	const bot = new Telegraf<BotContext>(config.telegramBotToken);
 	const messageQueue = new MessageQueue();
 
-	bot.use(sessionMiddleware(store));
+	bot.use(sessionMiddleware(store, config.encryptionSecret));
 	bot.use(rateLimitMiddleware(config.rateLimitPerMinute));
 
 	bot.start(startCommand);

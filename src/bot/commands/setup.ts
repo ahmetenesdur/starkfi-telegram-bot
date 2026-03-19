@@ -6,6 +6,7 @@ import {
 	PROVIDER_LABELS,
 	type Provider,
 } from "../../session/types.js";
+import { encrypt } from "../../session/crypto.js";
 
 export async function setupCommand(ctx: BotContext): Promise<void> {
 	await ctx.reply(
@@ -79,7 +80,8 @@ export async function handleApiKeyInput(
 	if (!userId) return;
 	const finalModel = modelName ?? MODEL_DEFAULTS[provider];
 
-	ctx.store.upsert(userId, provider, apiKey, finalModel);
+	const encryptedKey = encrypt(apiKey, ctx.encryptionSecret);
+	ctx.store.upsert(userId, provider, encryptedKey, finalModel);
 	ctx.store.clearAuthState(userId);
 
 	// Delete the message containing the plain-text key

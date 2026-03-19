@@ -5,14 +5,10 @@ export type Provider = "openai" | "claude" | "gemini";
 export interface UserSession {
 	userId: string;
 	provider: Provider;
-	encryptedKey: Buffer;
-	iv: Buffer;
-	authTag: Buffer;
+	encryptedApiKey: string;
 	modelName: string;
 	starkfiAddr: string | null;
 	history: ModelMessage[];
-	createdAt: number;
-	updatedAt: number;
 }
 
 export interface ModelOption {
