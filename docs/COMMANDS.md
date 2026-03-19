@@ -35,18 +35,6 @@
 | `/clear`     | Reset conversation history                      |
 | `/deletekey` | Remove stored API key and end session           |
 
-## Available Models
-
-| Provider   | Model ID                  | Label             | Description         |
-| ---------- | ------------------------- | ----------------- | ------------------- |
-| **OpenAI** | `gpt-5-mini`              | GPT-5 mini        | Fast & affordable   |
-| **OpenAI** | `gpt-5.4`                 | GPT-5.4           | Most powerful        |
-| **Claude** | `claude-haiku-4-5`        | Haiku 4.5         | Fast & cheap        |
-| **Claude** | `claude-sonnet-4-6`       | Sonnet 4.6        | Balanced            |
-| **Claude** | `claude-opus-4-6`         | Opus 4.6          | Most capable        |
-| **Gemini** | `gemini-2.5-flash`        | Gemini 2.5 Flash  | Fast & affordable   |
-| **Gemini** | `gemini-2.5-pro`          | Gemini 2.5 Pro    | Advanced reasoning  |
-| **Gemini** | `gemini-3-flash-preview`  | Gemini 3 Flash    | Next-gen (preview)  |
 
 ## Natural Language
 
