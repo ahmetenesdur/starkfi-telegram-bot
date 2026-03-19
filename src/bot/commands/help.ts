@@ -15,7 +15,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			"*What I can do:*\n" +
 			'• Token swaps — _"Swap 0.1 ETH to USDC"_\n' +
 			'• Multi-swap — _"Swap ETH to STRK and USDC"_\n' +
-			'• Portfolio — _"Show my balance"_\n' +
+			'• Portfolio — _"Show my portfolio"_\n' +
 			'• Staking — _"Stake 100 STRK on Karnot"_\n' +
 			'• Lending — _"Supply 0.5 ETH on Vesu"_\n' +
 			'• Batch operations — _"Swap + stake in one tx"_\n' +
