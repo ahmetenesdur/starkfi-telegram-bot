@@ -42,6 +42,17 @@ cp .env.example .env
 | `MCP_IDLE_TIMEOUT_MS`   | `300000`                      | Idle MCP process timeout (ms)        |
 | `PORT`                  | `8080`                        | Health check HTTP server port        |
 
+### Webhook Mode (Optional)
+
+By default, the bot uses **long polling** — no public URL needed. To use webhooks instead, set these variables:
+
+| Variable               | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `WEBHOOK_DOMAIN`       | Public domain (e.g. `https://bot.example.com`) |
+| `WEBHOOK_SECRET_PATH`  | Custom webhook path (default: `/webhook/<token>`) |
+
+When `WEBHOOK_DOMAIN` is set, the bot starts in webhook mode and skips the separate health check server (the webhook HTTP server handles both).
+
 ## 4. Install and Run
 
 ```bash
@@ -49,7 +60,7 @@ pnpm install
 pnpm dev
 ```
 
-Development mode uses `tsx watch` for hot-reload. The bot connects via long polling.
+Development mode uses `tsx watch` for hot-reload. The bot connects via long polling by default.
 
 ## Scripts
 
