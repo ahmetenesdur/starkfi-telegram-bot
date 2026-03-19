@@ -1,6 +1,6 @@
 # StarkFi Telegram Bot
 
-AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Users bring their own AI model — OpenAI, Claude, or Gemini — and their own API key. No shared keys, no centralized billing.
+AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Each user brings their own AI model and API key — no shared keys, no centralized billing.
 
 ## Features
 
@@ -8,32 +8,39 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Use
 - **Stake** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC)
 - **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
 - **Portfolio** — Balances with USD valuations and position health
-- **Batch** — Combine swap + stake + supply + send in one transaction
-- **Gas Modes** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
+- **Batch** — Combine multiple operations in a single atomic transaction
+- **Gas Abstraction** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
+
+## AI Providers
+
+| Provider   | Models                                                   |
+| ---------- | -------------------------------------------------------- |
+| **OpenAI** | GPT-5 mini, GPT-5.4                                      |
+| **Claude** | Haiku 4.5, Sonnet 4.6, Opus 4.6                          |
+| **Gemini** | Gemini 2.5 Flash, Gemini 2.5 Pro, Gemini 3 Flash Preview |
 
 ## Quick Start
 
 ```bash
 git clone https://github.com/ahmetenesdur/starkfi-telegram-bot.git
 cd starkfi-telegram-bot
-pnpm install
 
+# Install and configure
+pnpm install
 cp .env.example .env
 # Fill in TELEGRAM_BOT_TOKEN, BOT_ENCRYPTION_SECRET, STARKFI_SERVER_URL
 
 pnpm dev
 ```
 
-See [docs/SETUP.md](docs/SETUP.md) for full configuration and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for production.
+## Documentation
 
-## Docs
-
-| Document                             | Description                                     |
+| Document                             | What's Inside                                   |
 | ------------------------------------ | ----------------------------------------------- |
-| [Setup](docs/SETUP.md)               | Environment variables, BotFather setup, scripts |
-| [Deployment](docs/DEPLOYMENT.md)     | Docker, Railway, production checklist           |
+| [Setup](docs/SETUP.md)               | BotFather setup, environment variables, scripts |
+| [Commands](docs/COMMANDS.md)         | All bot commands and natural language examples  |
 | [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model        |
-| [Commands](docs/COMMANDS.md)         | Bot commands and natural language reference     |
+| [Deployment](docs/DEPLOYMENT.md)     | Docker, Railway, production checklist           |
 
 ## Requirements
 
