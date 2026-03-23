@@ -24,7 +24,6 @@ export function createMessageHandler(
 		await messageQueue.enqueue(userId, async () => {
 			await ctx.sendChatAction("typing");
 
-			// Repeat "typing..." indicator during long AI/MCP calls
 			const typingInterval = setInterval(() => {
 				ctx.sendChatAction("typing").catch(() => {
 					/* ignore — best-effort */
@@ -49,7 +48,6 @@ export function createMessageHandler(
 				const sanitized = sanitizeForTelegram(result.text);
 				const chunks = chunkMessage(sanitized);
 				for (const chunk of chunks) {
-					// Try Markdown first, fall back to plain text
 					try {
 						await ctx.reply(chunk, { parse_mode: "Markdown" });
 					} catch {
@@ -60,7 +58,6 @@ export function createMessageHandler(
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
 
-				// All errors from router.ts are already user-friendly
 				await ctx.reply(errorMsg);
 			} finally {
 				clearInterval(typingInterval);

@@ -17,7 +17,6 @@ export function createInteractionHandlers(
 	const handleOtp = createOtpHandler(config, mcpPool, dataDir);
 	const authCommand = createAuthCommand(config, mcpPool);
 
-	/** Action callback route map — maps `action:<key>` data to handlers. */
 	const ACTION_ROUTES: Record<string, (ctx: BotContext) => Promise<void>> = {
 		"action:setup": (ctx) => setupCommand(ctx),
 		"action:auth": (ctx) => authCommand(ctx),
@@ -25,13 +24,11 @@ export function createInteractionHandlers(
 		"action:about": (ctx) => aboutCommand(ctx),
 	};
 
-	/** Handles provider selection callbacks. Format: `setup:<provider>` */
 	async function handleSetupCallback(ctx: BotContext, data: string): Promise<void> {
 		const provider = data.split(":")[1] as Provider;
 		await handleProviderSelection(ctx, provider);
 	}
 
-	/** Handles model selection callbacks. Format: `setupmodel:<provider>:<modelId>` */
 	async function handleSetupModelCallback(ctx: BotContext, data: string): Promise<void> {
 		const rest = data.slice("setupmodel:".length); // e.g. "openai:gpt-5.4"
 		const sepIdx = rest.indexOf(":");
@@ -40,7 +37,6 @@ export function createInteractionHandlers(
 		await handleModelSelection(ctx, provider, modelId);
 	}
 
-	/** Handles in-provider model switch callbacks. Format: `switchmodel:<modelId>` */
 	async function handleSwitchModelCallback(ctx: BotContext, data: string): Promise<void> {
 		const modelId = data.slice("switchmodel:".length);
 		const userId = ctx.from?.id?.toString();
