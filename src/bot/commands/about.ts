@@ -8,14 +8,20 @@ export async function aboutCommand(ctx: BotContext): Promise<void> {
 			"powered by the Starkzap SDK.\n\n" +
 			"*What it includes:*\n" +
 			"• CLI with 30+ commands across 10 groups\n" +
-			"• MCP server with 27 tools for AI agents\n" +
+			"• MCP server with 30 tools for AI agents\n" +
 			"• 10 agent skills for autonomous DeFi workflows\n\n" +
 			"*Key capabilities:*\n" +
 			"• DEX-aggregated swaps via Fibrous\n" +
 			"• Multi-token swaps in a single transaction\n" +
 			"• Multi-token staking across validators\n" +
+			"• Compound staking rewards in one tx\n" +
 			"• Lending and borrowing on Vesu V2\n" +
+			"• Lending health monitor with 4-level risk alerts\n" +
+			"• Auto-rebalance unhealthy lending positions\n" +
+			"• Portfolio dashboard with USD valuations\n" +
+			"• Portfolio rebalancing to target allocations\n" +
 			"• Gasless and gasfree transactions via AVNU Paymaster\n" +
+			"• Transaction simulation and fee preview\n" +
 			"• Atomic multicall batching\n\n" +
 			"This bot is a live example of what you can build with " +
 			"StarkFi's MCP server.",

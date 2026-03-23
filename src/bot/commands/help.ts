@@ -16,10 +16,15 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			'• Token swaps — _"Swap 0.1 ETH to USDC"_\n' +
 			'• Multi-swap — _"Swap ETH to STRK and USDC"_\n' +
 			'• Portfolio — _"Show my portfolio"_\n' +
+			'• Portfolio rebalance — _"Rebalance to 50% ETH, 30% USDC, 20% STRK"_\n' +
 			'• Staking — _"Stake 100 STRK on Karnot"_\n' +
+			'• Compound rewards — _"Compound my staking rewards"_\n' +
 			'• Lending — _"Supply 0.5 ETH on Vesu"_\n' +
+			'• Lending monitor — _"Check my lending health"_\n' +
+			'• Auto-rebalance — _"Fix my unhealthy position"_\n' +
 			'• Batch operations — _"Swap + stake in one tx"_\n' +
-			'• Gas abstraction — _"Use gasless mode"_\n\n' +
+			'• Gas abstraction — _"Use gasless mode"_\n' +
+			'• Simulation — _"Simulate before executing"_\n\n' +
 			"Just describe what you want — in any language!",
 		{
 			parse_mode: "Markdown",
