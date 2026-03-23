@@ -7,7 +7,10 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Eac
 - **Swap** — DEX-aggregated trading via Fibrous
 - **Stake** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC)
 - **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
+- **Monitor** — Real-time lending health factor alerts with 4-level risk system
+- **Auto-Rebalance** — Automatically fix unhealthy lending positions
 - **Portfolio** — Balances with USD valuations and position health
+- **Rebalance** — Optimize portfolio allocation via batch swaps
 - **Batch** — Combine multiple operations in a single atomic transaction
 - **Gas Abstraction** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
 

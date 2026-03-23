@@ -40,12 +40,15 @@
 
 After setup and auth, send messages in any language. The AI handles the rest.
 
-| Example                    | What Happens                                      |
-| -------------------------- | ------------------------------------------------- |
-| "What's my balance?"       | Returns token balances with USD values            |
-| "Swap 0.1 ETH to USDC"    | Gets a quote, asks for confirmation, executes     |
-| "Stake 100 STRK"          | Lists validators, user picks one, stakes          |
-| "Supply 0.5 ETH on Vesu"  | Lists lending pools, user picks one, supplies     |
-| "Send 50 USDC to 0x04a3…" | Confirms recipient, executes transfer             |
-| "Swap + stake in one tx"  | Batch operation — multiple actions combined       |
-| "Use gasless mode"        | Switches to ERC-20 gas payment via AVNU Paymaster |
+| Example                                         | What Happens                                            |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| "What's my balance?"                             | Returns token balances with USD values                  |
+| "Swap 0.1 ETH to USDC"                          | Gets a quote, asks for confirmation, executes           |
+| "Stake 100 STRK"                                 | Lists validators, user picks one, stakes                |
+| "Supply 0.5 ETH on Vesu"                         | Lists lending pools, user picks one, supplies           |
+| "Send 50 USDC to 0x04a3…"                        | Confirms recipient, executes transfer                   |
+| "Check my lending positions"                     | Monitors all positions with health factor and risk      |
+| "My health factor is low, fix it"                | Simulates auto-rebalance, asks for confirmation         |
+| "Rebalance to 50% ETH, 30% USDC, 20% STRK"     | Calculates optimal trades, previews, then executes      |
+| "Swap + stake in one tx"                         | Batch operation — multiple actions combined              |
+| "Use gasless mode"                               | Switches to ERC-20 gas payment via AVNU Paymaster       |
