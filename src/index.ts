@@ -26,8 +26,7 @@ async function main(): Promise<void> {
 	mcpPool.startCleanup();
 
 	const bot = createBot(config, store, mcpPool, dataDir);
-
-	// Guard against double-shutdown on repeated signals
+	let health: ReturnType<typeof createServer> | null = null;
 	let isShuttingDown = false;
 
 	async function shutdown(signal: string): Promise<void> {
@@ -50,7 +49,6 @@ async function main(): Promise<void> {
 		logLevel: config.logLevel,
 	});
 
-	// ── Launch ──
 	if (config.webhookDomain) {
 		const webhookPath = config.webhookSecretPath ?? `/webhook/${config.telegramBotToken}`;
 		await bot.launch({
@@ -69,8 +67,6 @@ async function main(): Promise<void> {
 		logger.info("Bot started (polling mode)");
 	}
 
-	// ── Health check server (only in polling mode — webhook uses its own HTTP server) ──
-	let health: ReturnType<typeof createServer> | null = null;
 	if (!config.webhookDomain) {
 		health = createServer((_, res) => {
 			res.writeHead(200, { "Content-Type": "application/json" });
