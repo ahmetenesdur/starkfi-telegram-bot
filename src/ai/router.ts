@@ -76,7 +76,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 		const errorMsg = error instanceof Error ? error.message : String(error);
 		const lowerMsg = errorMsg.toLowerCase();
 
-		// Extract HTTP status from Vercel AI SDK's APICallError
 		const statusCode =
 			error instanceof Error && "statusCode" in error
 				? (error as { statusCode: number }).statusCode
@@ -91,7 +90,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 
 		const label = PROVIDER_LABELS[provider] ?? provider;
 
-		// — Authentication errors —
 		if (
 			statusCode === 401 ||
 			statusCode === 403 ||
@@ -105,7 +103,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			});
 		}
 
-		// — Rate limit errors —
 		if (
 			statusCode === 429 ||
 			lowerMsg.includes("rate limit") ||
@@ -119,7 +116,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Quota / billing errors —
 		if (
 			lowerMsg.includes("insufficient_quota") ||
 			lowerMsg.includes("quota") ||
@@ -133,7 +129,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Content filter / safety errors —
 		if (
 			lowerMsg.includes("content filter") ||
 			lowerMsg.includes("safety") ||
@@ -147,7 +142,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Model not found —
 		if (
 			statusCode === 404 ||
 			lowerMsg.includes("model not found") ||
@@ -160,7 +154,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Timeout / network errors —
 		if (
 			lowerMsg.includes("timeout") ||
 			lowerMsg.includes("timed out") ||
@@ -175,7 +168,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Server errors —
 		if (statusCode && statusCode >= 500) {
 			throw new Error(
 				`${label} is experiencing server issues (${statusCode}). Please try again later.`,
@@ -183,7 +175,6 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
-		// — Fallback — still descriptive
 		throw new Error(
 			`${label} request failed. Please try again. If the problem persists, try /model to switch models.`,
 			{ cause: error }

@@ -28,7 +28,6 @@ function log(level: LogLevel, message: string, data?: Record<string, unknown>): 
 
 	const output = JSON.stringify(entry) + "\n";
 
-	// warn and error go to stderr for proper log routing
 	if (level === "warn" || level === "error") {
 		process.stderr.write(output);
 	} else {

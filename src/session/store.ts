@@ -97,7 +97,6 @@ export class SessionStore {
 				history: string;
 			}[];
 
-			// Drop old tables and recreate
 			this.db.exec("DROP TABLE IF EXISTS sessions");
 			this.db.exec("DROP TABLE IF EXISTS auth_states");
 
@@ -248,13 +247,10 @@ export class SessionStore {
 		this.stmts.deleteSession.run(userId);
 	}
 
-	// ── Auth state management ──
-
 	getAuthState(userId: string): string | null {
 		const row = this.stmts.getAuthState.get(userId) as Record<string, unknown> | undefined;
 		if (!row) return null;
 
-		// Reconstruct full state: merge step/email with extra JSON from data column
 		const base: Record<string, unknown> = { step: row.step };
 		if (row.email) base.email = row.email;
 		if (row.data) {
@@ -272,7 +268,6 @@ export class SessionStore {
 		const step = parsed.step as string;
 		const email = (parsed.email as string) ?? null;
 
-		// Store step/email in dedicated columns, everything else in data as JSON
 		const { step: _s, email: _e, ...extra } = parsed;
 		const data = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
