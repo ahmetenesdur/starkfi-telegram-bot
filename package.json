@@ -29,20 +29,20 @@
   "author": "ahmetenesdur",
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.63",
-    "@ai-sdk/google": "^3.0.52",
+    "@ai-sdk/anthropic": "^3.0.64",
+    "@ai-sdk/google": "^3.0.53",
     "@ai-sdk/mcp": "latest",
-    "@ai-sdk/openai": "^3.0.47",
+    "@ai-sdk/openai": "^3.0.48",
     "@modelcontextprotocol/sdk": "^1.27.1",
-    "ai": "^6.0.134",
+    "ai": "^6.0.137",
     "better-sqlite3": "^12.8.0",
     "telegraf": "^4.16.3",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^22.19.15",
+    "@types/node": "^25.5.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",
@@ -51,7 +51,7 @@
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.1"
+    "typescript-eslint": "^8.57.2"
   },
   "engines": {
     "node": ">=18.0.0"
