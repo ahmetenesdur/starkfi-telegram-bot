@@ -66,7 +66,8 @@ src/
     │   ├── status.ts      # /status — session info dashboard
     │   ├── help.ts        # /help — command reference
     │   ├── clear.ts       # /clear — reset conversation history
-    │   └── deletekey.ts   # /deletekey — remove API key and end session
+    │   ├── deletekey.ts   # /deletekey — remove API key and end session
+    │   └── about.ts       # About StarkFi (inline button, not a slash command)
     └── handlers/
         ├── callback.ts    # Inline keyboard callback query handler
         └── message.ts     # Natural language text message processing
