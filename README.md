@@ -4,7 +4,7 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Eac
 
 ## Features
 
-- **Swap** — DEX-aggregated trading via Fibrous
+- **Swap** — Token trading via Fibrous (default), AVNU, or Ekubo
 - **Stake** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC)
 - **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
 - **Monitor** — Real-time lending health factor alerts with 4-level risk system
