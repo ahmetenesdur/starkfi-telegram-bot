@@ -12,6 +12,7 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Eac
 - **Portfolio** — Balances with USD valuations and position health
 - **Rebalance** — Optimize portfolio allocation via batch swaps
 - **Batch** — Combine multiple operations in a single atomic transaction
+- **DCA** — Dollar-Cost Averaging with recurring buy orders (AVNU, Ekubo)
 - **Gas Abstraction** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
 
 ## AI Providers

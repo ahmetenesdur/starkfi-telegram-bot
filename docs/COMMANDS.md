@@ -52,3 +52,5 @@ After setup and auth, send messages in any language. The AI handles the rest.
 | "Rebalance to 50% ETH, 30% USDC, 20% STRK"     | Calculates optimal trades, previews, then executes      |
 | "Swap + stake in one tx"                         | Batch operation — multiple actions combined              |
 | "Use gasless mode"                               | Switches to ERC-20 gas payment via AVNU Paymaster       |
+| "Buy 10 USDC of ETH every day for 100 days"     | Previews DCA, asks for confirmation, creates order       |
+| "Show my active DCA orders"                      | Lists all active DCA orders with status                  |

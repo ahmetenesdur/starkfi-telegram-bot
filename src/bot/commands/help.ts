@@ -23,6 +23,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			'• Lending monitor — _"Check my lending health"_\n' +
 			'• Auto-rebalance — _"Fix my unhealthy position"_\n' +
 			'• Batch operations — _"Swap + stake in one tx"_\n' +
+			'• DCA orders — _"Buy 10 USDC of ETH every day"_\n' +
 			'• Gas abstraction — _"Use gasless mode"_\n' +
 			'• Simulation — _"Simulate before executing"_\n\n' +
 			"Just describe what you want — in any language!",
