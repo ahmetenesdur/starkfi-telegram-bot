@@ -9,6 +9,7 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Eac
 - **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
 - **Monitor** — Real-time lending health factor alerts with 4-level risk system
 - **Auto-Rebalance** — Automatically fix unhealthy lending positions
+- **Health Simulation** — Preview lending action impact on health factor before executing
 - **Portfolio** — Balances with USD valuations and position health
 - **Rebalance** — Optimize portfolio allocation via batch swaps
 - **Batch** — Combine multiple operations in a single atomic transaction

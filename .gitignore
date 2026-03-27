@@ -1,8 +1,8 @@
-node_modules/
-dist/
-.data/
-.Jules/
+node_modules
+dist
+.data
 .env
+.Jules
 *.db
 *.db-journal
 *.db-wal
