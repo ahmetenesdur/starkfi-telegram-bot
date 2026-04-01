@@ -1,12 +1,13 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { ENCRYPTION_SECRET_REGEX, ENCRYPTION_SECRET_ERROR } from "../lib/config.js";
 
 const ALGO = "aes-256-gcm";
 const IV_LEN = 12; // NIST SP 800-38D optimal for AES-GCM
 const TAG_LEN = 16;
 
 function deriveKey(secret: string): Buffer {
-	if (!/^[0-9a-f]{64}$/i.test(secret)) {
-		throw new Error("BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)");
+	if (!ENCRYPTION_SECRET_REGEX.test(secret)) {
+		throw new Error(ENCRYPTION_SECRET_ERROR);
 	}
 	return Buffer.from(secret, "hex");
 }
