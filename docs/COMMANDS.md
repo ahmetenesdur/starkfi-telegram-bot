@@ -46,6 +46,8 @@ After setup and auth, send messages in any language. The AI handles the rest.
 | "Swap 0.1 ETH to USDC"                          | Gets a quote, asks for confirmation, executes           |
 | "Stake 100 STRK"                                 | Lists validators, user picks one, stakes                |
 | "Supply 0.5 ETH on Vesu"                         | Lists lending pools, user picks one, supplies           |
+| "Borrow 100 USDC and swap to STRK"               | Batch operation combining lending borrow and token swap |
+| "Repay my STRK debt"                             | Repays open borrow positions on the specified asset     |
 | "Send 50 USDC to 0x04a3…"                        | Confirms recipient, executes transfer                   |
 | "Check my lending positions"                     | Monitors all positions with health factor and risk      |
 | "My health factor is low, fix it"                | Simulates auto-rebalance, asks for confirmation         |

@@ -1,7 +1,7 @@
 {
   "name": "starkfi-telegram-bot",
-  "version": "0.2.0",
-  "description": "AI-powered Telegram bot for StarkFi DeFi on Starknet — bring your own model (OpenAI, Claude, Gemini)",
+  "version": "0.3.0",
+  "description": "AI-powered Telegram bot for StarkFi DeFi on Starknet — Swap, stake, lend, batch, DCA and confidential transfers. Bring your own model (OpenAI, Claude, Gemini).",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

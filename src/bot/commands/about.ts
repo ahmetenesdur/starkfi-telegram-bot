@@ -7,7 +7,7 @@ export async function aboutCommand(ctx: BotContext): Promise<void> {
 			"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
 			"powered by the Starkzap SDK.\n\n" +
 			"*What it includes:*\n" +
-			"• CLI with 40+ commands across 12 groups\n" +
+			"• CLI with 42+ commands across 12 groups\n" +
 			"• MCP server with 42 tools for AI agents\n" +
 			"• 12 agent skills for autonomous DeFi workflows\n\n" +
 			"*Key capabilities:*\n" +

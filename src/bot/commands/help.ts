@@ -20,6 +20,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			'• Staking — _"Stake 100 STRK on Karnot"_\n' +
 			'• Compound rewards — _"Compound my staking rewards"_\n' +
 			'• Lending — _"Supply 0.5 ETH on Vesu"_\n' +
+			'• Borrow/Repay — _"Borrow 100 USDC and swap to STRK"_\n' +
 			'• Lending monitor — _"Check my lending health"_\n' +
 			'• Auto-rebalance — _"Fix my unhealthy position"_\n' +
 			'• Batch operations — _"Swap + stake in one tx"_\n' +
