@@ -25,6 +25,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			'• Batch operations — _"Swap + stake in one tx"_\n' +
 			'• DCA orders — _"Buy 10 USDC of ETH every day"_\n' +
 			'• Gas abstraction — _"Use gasless mode"_\n' +
+			'• Confidential transfers — _"Fund 100 USDC to my confidential account"_\n' +
 			'• Simulation — _"Simulate before executing"_\n\n' +
 			"Just describe what you want — in any language!",
 		{

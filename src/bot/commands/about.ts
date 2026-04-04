@@ -7,9 +7,9 @@ export async function aboutCommand(ctx: BotContext): Promise<void> {
 			"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
 			"powered by the Starkzap SDK.\n\n" +
 			"*What it includes:*\n" +
-			"• CLI with 35+ commands across 11 groups\n" +
-			"• MCP server with 35 tools for AI agents\n" +
-			"• 11 agent skills for autonomous DeFi workflows\n\n" +
+			"• CLI with 40+ commands across 12 groups\n" +
+			"• MCP server with 42 tools for AI agents\n" +
+			"• 12 agent skills for autonomous DeFi workflows\n\n" +
 			"*Key capabilities:*\n" +
 			"• DEX-aggregated swaps via Fibrous\n" +
 			"• Multi-token swaps in a single transaction\n" +
@@ -21,6 +21,7 @@ export async function aboutCommand(ctx: BotContext): Promise<void> {
 			"• Portfolio dashboard with USD valuations\n" +
 			"• Portfolio rebalancing to target allocations\n" +
 			"• Dollar-Cost Averaging (DCA) with recurring orders\n" +
+			"• Confidential (private) transfers with ZK proofs via Tongo Cash\n" +
 			"• Gasless and gasfree transactions via AVNU Paymaster\n" +
 			"• Transaction simulation and fee preview\n" +
 			"• Atomic multicall batching\n\n" +

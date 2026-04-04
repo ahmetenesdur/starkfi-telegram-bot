@@ -54,3 +54,6 @@ After setup and auth, send messages in any language. The AI handles the rest.
 | "Use gasless mode"                               | Switches to ERC-20 gas payment via AVNU Paymaster       |
 | "Buy 10 USDC of ETH every day for 100 days"     | Previews DCA, asks for confirmation, creates order       |
 | "Show my active DCA orders"                      | Lists all active DCA orders with status                  |
+| "Fund 100 USDC to my confidential account"       | Funds public tokens into private balance                 |
+| "Send 50 privately to this public key"            | Private transfer via ZK proof                            |
+| "Withdraw from my confidential account"           | Converts private balance back to public                  |
