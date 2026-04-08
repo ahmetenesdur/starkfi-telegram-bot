@@ -2,28 +2,49 @@
 
 AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Each user brings their own AI model and API key — no shared keys, no centralized billing.
 
+## How It Works
+
+```
+You (Telegram) → AI Model (your key) → StarkFi MCP Server → Starknet
+```
+
+Each user gets a dedicated MCP child process with isolated credentials. No cross-contamination between users.
+
 ## Features
 
-- **Swap** — Token trading via Fibrous (default), AVNU, or Ekubo
-- **Stake** — Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC)
-- **Lend** — Supply, borrow, repay, withdraw, close on Vesu V2
-- **Monitor** — Real-time lending health factor alerts with 4-level risk system
-- **Auto-Rebalance** — Automatically fix unhealthy lending positions
-- **Health Simulation** — Preview lending action impact on health factor before executing
-- **Portfolio** — Balances with USD valuations and position health
-- **Rebalance** — Optimize portfolio allocation via batch swaps
-- **Batch** — Combine multiple operations in a single atomic transaction
-- **DCA** — Dollar-Cost Averaging with recurring buy orders (AVNU, Ekubo)
-- **Confidential Transfers** — Privacy-preserving token transfers via Tongo Cash with ZK proofs
-- **Gas Abstraction** — Gasless (pay in ERC-20) and gasfree (developer-sponsored) via AVNU Paymaster
+| Feature | Description |
+| --- | --- |
+| **Swap** | Token trading via Fibrous, AVNU, or Ekubo (`--provider auto` races all) |
+| **Stake** | Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC) |
+| **Lend** | Supply, borrow, repay, withdraw, close, monitor, auto-rebalance on Vesu V2 |
+| **DCA** | Recurring buy orders via AVNU and Ekubo |
+| **Confidential** | Privacy-preserving transfers via Tongo Cash (ZK proofs) |
+| **Batch** | Combine swap + stake + lend + send + DCA in one atomic transaction |
+| **Portfolio** | Balances with USD values, staking positions, lending health |
+| **Gas Modes** | Gasless (pay in ERC-20) and gasfree (developer-sponsored) |
+
+## Bot Commands
+
+| Command | Description |
+| --- | --- |
+| `/start` | Welcome and onboarding |
+| `/setup` | Configure AI provider, model, and API key |
+| `/auth` | Log in via email OTP |
+| `/model` | Switch AI model or provider |
+| `/status` | View provider, model, wallet, history |
+| `/help` | List commands and example prompts |
+| `/clear` | Reset conversation history |
+| `/deletekey` | Remove stored API key |
+
+After setup, just chat naturally — *"Swap 0.1 ETH to USDC"*, *"Stake 100 STRK"*, *"Show my portfolio"*.
 
 ## AI Providers
 
-| Provider   | Models                                                   |
-| ---------- | -------------------------------------------------------- |
-| **OpenAI** | GPT-5 mini, GPT-5.4                                      |
-| **Claude** | Haiku 4.5, Sonnet 4.6, Opus 4.6                          |
-| **Gemini** | Gemini 2.5 Flash, Gemini 2.5 Pro, Gemini 3 Flash Preview |
+| Provider | Models |
+| --- | --- |
+| **OpenAI** | GPT-5 mini, GPT-5.4 |
+| **Claude** | Haiku 4.5, Sonnet 4.6, Opus 4.6 |
+| **Gemini** | 2.5 Flash, 2.5 Pro, 3 Flash Preview |
 
 ## Quick Start
 
@@ -31,28 +52,42 @@ AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Eac
 git clone https://github.com/ahmetenesdur/starkfi-telegram-bot.git
 cd starkfi-telegram-bot
 
-# Install and configure
 pnpm install
 cp .env.example .env
-# Fill in TELEGRAM_BOT_TOKEN, BOT_ENCRYPTION_SECRET, STARKFI_SERVER_URL
+# Fill in: TELEGRAM_BOT_TOKEN, BOT_ENCRYPTION_SECRET, STARKFI_SERVER_URL
 
 pnpm dev
 ```
 
 ## Documentation
 
-| Document                             | What's Inside                                   |
-| ------------------------------------ | ----------------------------------------------- |
-| [Setup](docs/SETUP.md)               | BotFather setup, environment variables, scripts |
-| [Commands](docs/COMMANDS.md)         | All bot commands and natural language examples  |
-| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model        |
-| [Deployment](docs/DEPLOYMENT.md)     | Docker, Railway, production checklist           |
+| Document | Content |
+| --- | --- |
+| [Setup](docs/SETUP.md) | BotFather setup, environment variables, scripts |
+| [Commands](docs/COMMANDS.md) | All bot commands and natural language examples |
+| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security model |
+| [Deployment](docs/DEPLOYMENT.md) | Docker, Railway, production checklist |
+
+## Security
+
+- API keys encrypted with **AES-256-GCM** at rest
+- Messages containing keys are **auto-deleted** from Telegram
+- Per-user **MCP process isolation** (separate XDG home)
+- **5-message burst** rate limiting (1 token/sec refill)
+
+→ **[Security Architecture](https://docs.starkfi.app/docs/architecture/security)**
 
 ## Requirements
 
 - Node.js 18+
 - Telegram bot token from [@BotFather](https://t.me/BotFather)
 - API key from OpenAI, Anthropic, or Google
+
+## See Also
+
+- **[Telegram Bot Docs](https://docs.starkfi.app/docs/integrations/telegram-bot)** — Full integration guide
+- **[MCP Server](https://docs.starkfi.app/docs/mcp)** — Underlying protocol powering the bot
+- **[StarkFi CLI](https://github.com/ahmetenesdur/starkfi)** — Main project repository
 
 ## License
 

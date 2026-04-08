@@ -59,3 +59,12 @@ After setup and auth, send messages in any language. The AI handles the rest.
 | "Fund 100 USDC to my confidential account"       | Funds public tokens into private balance                 |
 | "Send 50 privately to this public key"            | Private transfer via ZK proof                            |
 | "Withdraw from my confidential account"           | Converts private balance back to public                  |
+
+---
+
+## See Also
+
+- **[Architecture](ARCHITECTURE.md)** — System design, data flow, AI error handling
+- **[StarkFi CLI Reference](https://docs.starkfi.app/docs/cli)** — Full CLI command reference
+- **[MCP Tools](https://docs.starkfi.app/docs/mcp)** — The 42 MCP tools the bot uses internally
+

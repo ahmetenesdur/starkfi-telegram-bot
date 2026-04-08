@@ -146,3 +146,11 @@ The AI router (`router.ts`) catches and classifies provider errors into user-fri
 | `@ai-sdk/google`    | Google (Gemini) provider              |
 | `better-sqlite3`    | SQLite driver for session storage     |
 | `zod`               | Schema validation for config          |
+
+---
+
+## See Also
+
+- **[Security Architecture](https://docs.starkfi.app/docs/architecture/security)** — Full security model across all StarkFi entry points
+- **[MCP Server](https://docs.starkfi.app/docs/mcp)** — The MCP protocol powering the bot
+- **[Telegram Bot Guide](https://docs.starkfi.app/docs/integrations/telegram-bot)** — User-facing integration guide

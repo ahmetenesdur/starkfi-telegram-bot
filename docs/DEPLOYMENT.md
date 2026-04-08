@@ -146,3 +146,11 @@ docker compose up -d --build   # Docker
 
 - Mount `.data/` as a persistent volume.
 - On Railway, ensure the volume is attached with mount path `/app/.data`.
+
+---
+
+## See Also
+
+- **[Setup Guide](SETUP.md)** — Environment variables and local development
+- **[Architecture](ARCHITECTURE.md)** — System design and security model
+- **[Telegram Bot Docs](https://docs.starkfi.app/docs/integrations/telegram-bot)** — User-facing integration guide

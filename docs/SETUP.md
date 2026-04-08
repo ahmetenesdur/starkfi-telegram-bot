@@ -74,3 +74,11 @@ Development mode uses `tsx watch` for hot-reload. The bot connects via long poll
 | `pnpm lint:fix`     | ESLint auto-fix             |
 | `pnpm format`       | Prettier format             |
 | `pnpm format:check` | Prettier check              |
+
+---
+
+## See Also
+
+- **[Commands](COMMANDS.md)** — All bot commands and example prompts
+- **[Deployment](DEPLOYMENT.md)** — Docker, Railway, production checklist
+- **[Architecture](ARCHITECTURE.md)** — System design and security model
