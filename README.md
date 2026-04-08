@@ -42,9 +42,9 @@ After setup, just chat naturally — *"Swap 0.1 ETH to USDC"*, *"Stake 100 STRK"
 
 | Provider | Models |
 | --- | --- |
-| **OpenAI** | GPT-5 mini, GPT-5.4 |
+| **OpenAI** | GPT-5.4 Nano, GPT-5.4 Mini, GPT-5.4 |
 | **Claude** | Haiku 4.5, Sonnet 4.6, Opus 4.6 |
-| **Gemini** | 3.1 Flash-Lite, 2.5 Flash, 2.5 Pro, 3.1 Pro Preview |
+| **Gemini** | 3.1 Flash-Lite, 3 Flash, 2.5 Flash, 2.5 Pro, 3.1 Pro Preview |
 
 ## Quick Start
 
