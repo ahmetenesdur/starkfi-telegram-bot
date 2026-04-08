@@ -1,3 +1,4 @@
+import { Markup } from "telegraf";
 import type { BotContext } from "../middleware/session.js";
 import { MODEL_OPTIONS, PROVIDER_LABELS } from "../../session/types.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
@@ -12,7 +13,12 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 					"AI Model: Not configured\n" +
 					"Wallet: Not connected\n\n" +
 					"Use /setup to get started.",
-				{ parse_mode: "HTML" }
+				{
+					parse_mode: "HTML",
+					...Markup.inlineKeyboard([
+						Markup.button.callback("Setup AI Model", "action:setup"),
+					]),
+				}
 			);
 			return;
 		}
@@ -34,14 +40,12 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 				`Active MCP: ${mcpPool.activeCount} processes`,
 			{
 				parse_mode: "HTML",
-				reply_markup: {
-					inline_keyboard: [
-						[
-							{ text: "[ Authenticate ]", callback_data: "cmd_auth" },
-							{ text: "[ Change Model ]", callback_data: "cmd_model" },
-						],
+				...Markup.inlineKeyboard([
+					[
+						Markup.button.callback("Log In", "action:auth"),
+						Markup.button.callback("Switch Model", "action:setup"),
 					],
-				},
+				]),
 			}
 		);
 	};

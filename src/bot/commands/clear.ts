@@ -5,5 +5,5 @@ export async function clearCommand(ctx: BotContext): Promise<void> {
 	if (!userId) return;
 
 	ctx.store.clearHistory(userId);
-	await ctx.reply("Conversation history cleared. Start fresh!");
+	await ctx.reply("Conversation history cleared.");
 }

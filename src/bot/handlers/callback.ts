@@ -1,3 +1,4 @@
+import { Markup } from "telegraf";
 import type { BotContext } from "../middleware/session.js";
 import type { Config } from "../../lib/config.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
@@ -45,7 +46,11 @@ export function createInteractionHandlers(
 		const session = ctx.userSession;
 
 		if (!session) {
-			await ctx.reply("No AI model configured yet. Use /setup to get started.");
+			await ctx.reply("No AI model configured yet. Use /setup to get started.", {
+				...Markup.inlineKeyboard([
+					Markup.button.callback("Setup AI Model", "action:setup"),
+				]),
+			});
 			return;
 		}
 
@@ -53,7 +58,9 @@ export function createInteractionHandlers(
 		const model = models.find((m) => m.id === modelId);
 
 		if (!model) {
-			await ctx.reply("That model is no longer available. Use /model to see your options.");
+			await ctx.reply("That model is no longer available. Use /model to see your options.", {
+				...Markup.inlineKeyboard([Markup.button.callback("Switch Model", "action:setup")]),
+			});
 			return;
 		}
 

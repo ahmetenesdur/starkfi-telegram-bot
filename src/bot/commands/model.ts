@@ -4,7 +4,9 @@ import { MODEL_OPTIONS, PROVIDER_LABELS } from "../../session/types.js";
 
 export async function modelCommand(ctx: BotContext): Promise<void> {
 	if (!ctx.userSession) {
-		await ctx.reply("No AI model configured yet. Use /setup to get started.");
+		await ctx.reply("No AI model configured yet. Use /setup to get started.", {
+			...Markup.inlineKeyboard([Markup.button.callback("Setup AI Model", "action:setup")]),
+		});
 		return;
 	}
 

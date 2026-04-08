@@ -99,7 +99,11 @@ function getErrorButtons(errorMsg: string) {
 		return [Markup.button.callback("Setup AI Model", "action:setup")];
 	}
 
-	if (lower.includes("/model") || lower.includes("model")) {
+	if (
+		lower.includes("/model") ||
+		lower.includes("model not") ||
+		lower.includes("not available")
+	) {
 		return [Markup.button.callback("Switch Model", "action:setup")];
 	}
 

@@ -29,6 +29,6 @@ export async function cancelCommand(ctx: BotContext): Promise<void> {
 		activeStreams.delete(userId);
 		await ctx.reply("Operation cancelled.", { parse_mode: "HTML" });
 	} else {
-		await ctx.reply("No active operation to cancel.");
+		await ctx.reply("No active operation to cancel.", { parse_mode: "HTML" });
 	}
 }

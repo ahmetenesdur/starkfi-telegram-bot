@@ -11,6 +11,7 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			"• /status — View your current session (provider, model, wallet)\n\n" +
 			"<b>Session</b>\n" +
 			"• /clear — Reset conversation history\n" +
+			"• /cancel — Stop the current AI operation\n" +
 			"• /deletekey — Remove your stored API key\n\n" +
 			"<b>What I can do:</b>\n" +
 			'• Token swaps — <i>"Swap 0.1 ETH to USDC"</i>\n' +

@@ -46,7 +46,8 @@ export function createEmailHandler(config: Config) {
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth login failed", { userId, error: msg });
-			await ctx.reply("Login failed. Please try again.\n\nUse /auth to start over.", {
+			await ctx.reply("<b>Login failed.</b> Please try again.\n\nUse /auth to start over.", {
+				parse_mode: "HTML",
 				...Markup.inlineKeyboard([Markup.button.callback("Try Again", "action:auth")]),
 			});
 		}
@@ -82,9 +83,13 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 			ctx.store.clearAuthState(userId);
 			const msg = error instanceof Error ? error.message : String(error);
 			logger.error("Auth verify failed", { userId, error: msg });
-			await ctx.reply("Verification failed. Please try again.\n\nUse /auth to start over.", {
-				...Markup.inlineKeyboard([Markup.button.callback("Try Again", "action:auth")]),
-			});
+			await ctx.reply(
+				"<b>Verification failed.</b> Please try again.\n\nUse /auth to start over.",
+				{
+					parse_mode: "HTML",
+					...Markup.inlineKeyboard([Markup.button.callback("Try Again", "action:auth")]),
+				}
+			);
 		}
 	};
 }
