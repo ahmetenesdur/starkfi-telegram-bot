@@ -13,6 +13,7 @@ import { createStatusCommand } from "./commands/status.js";
 import { helpCommand } from "./commands/help.js";
 import { clearCommand } from "./commands/clear.js";
 import { createDeleteKeyCommand } from "./commands/deletekey.js";
+import { cancelCommand } from "./commands/cancel.js";
 import { createMessageHandler } from "./handlers/message.js";
 import { createInteractionHandlers } from "./handlers/callback.js";
 import { logger } from "../lib/logger.js";
@@ -37,6 +38,7 @@ export function createBot(
 	bot.command("status", createStatusCommand(mcpPool));
 	bot.command("clear", clearCommand);
 	bot.command("deletekey", createDeleteKeyCommand(mcpPool));
+	bot.command("cancel", cancelCommand);
 
 	const { handleCallback, routeAuthFlow } = createInteractionHandlers(config, mcpPool, dataDir);
 	bot.on("callback_query", handleCallback);

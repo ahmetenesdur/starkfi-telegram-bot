@@ -5,6 +5,39 @@ import { PROVIDER_LABELS, type Provider } from "../session/types.js";
 import type { McpToolSet } from "../mcp/pool.js";
 import { logger } from "../lib/logger.js";
 
+// Human-readable labels for tool calls shown during streaming
+const TOOL_LABELS: Record<string, string> = {
+	get_swap_quote: "Fetching swap quote",
+	swap_tokens: "Executing swap",
+	get_multi_swap_quote: "Fetching multi-swap quote",
+	multi_swap: "Executing multi-swap",
+	get_portfolio: "Loading portfolio",
+	list_validators: "Checking validators",
+	list_pools: "Checking staking pools",
+	stake_tokens: "Staking tokens",
+	unstake_tokens: "Unstaking tokens",
+	claim_rewards: "Claiming rewards",
+	compound_rewards: "Compounding rewards",
+	list_lending_pools: "Checking lending pools",
+	supply_lending: "Supplying to lending pool",
+	borrow_lending: "Borrowing from lending pool",
+	repay_lending: "Repaying lending debt",
+	withdraw_lending: "Withdrawing from lending pool",
+	close_lending_position: "Closing lending position",
+	monitor_lending_position: "Checking position health",
+	auto_rebalance_lending: "Rebalancing lending position",
+	dca_preview: "Previewing DCA order",
+	dca_create: "Creating DCA order",
+	dca_list: "Loading DCA orders",
+	dca_cancel: "Cancelling DCA order",
+	rebalance_portfolio: "Rebalancing portfolio",
+	confidential_balance: "Checking confidential balance",
+	confidential_fund: "Funding confidential account",
+	confidential_transfer: "Sending confidential transfer",
+	confidential_withdraw: "Withdrawing from confidential",
+	deploy_account: "Deploying account",
+};
+
 export interface RouterInput {
 	provider: Provider;
 	apiKey: string;
@@ -12,6 +45,8 @@ export interface RouterInput {
 	history: ModelMessage[];
 	userMessage: string;
 	tools: McpToolSet;
+	abortSignal?: AbortSignal;
+	onStatusUpdate?: (label: string) => void;
 }
 
 export interface RouterResult {
@@ -19,8 +54,19 @@ export interface RouterResult {
 	getFinalHistory: () => Promise<ModelMessage[]>;
 }
 
+const MAX_TOOL_RESULT_LENGTH = 2000;
+
 export async function processMessage(input: RouterInput): Promise<RouterResult> {
-	const { provider, apiKey, modelName, history, userMessage, tools } = input;
+	const {
+		provider,
+		apiKey,
+		modelName,
+		history,
+		userMessage,
+		tools,
+		abortSignal,
+		onStatusUpdate,
+	} = input;
 
 	const model = createModel(provider, apiKey, modelName);
 
@@ -39,6 +85,7 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			tools,
 			system: SYSTEM_PROMPT,
 			messages,
+			abortSignal,
 			stopWhen: stepCountIs(10),
 
 			onStepFinish({ stepNumber, finishReason, usage }) {
@@ -49,6 +96,12 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 				});
 			},
 
+			experimental_onToolCallStart({ toolCall }) {
+				const label = TOOL_LABELS[toolCall.toolName] ?? toolCall.toolName;
+				logger.debug("Tool call started", { toolName: toolCall.toolName });
+				onStatusUpdate?.(label);
+			},
+
 			experimental_onToolCallFinish({ toolCall, durationMs }) {
 				logger.debug("Tool call stream completed", {
 					toolName: toolCall.toolName,
@@ -57,15 +110,28 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			},
 		});
 
-		// By returning the result object, the caller can iterate `result.textStream`
-		// and once finished, they can await `result.text` to get the final history.
 		return {
 			textStream: result.textStream,
 			getFinalHistory: async () => {
 				const responseText =
 					(await result.text) ||
 					"I completed the operation but have no additional output.";
-				return [...messages, { role: "assistant", content: responseText }];
+
+				// Truncate large string content in history to save tokens
+				const trimmedMessages: ModelMessage[] = messages.map((msg) => {
+					if (
+						typeof msg.content === "string" &&
+						msg.content.length > MAX_TOOL_RESULT_LENGTH
+					) {
+						return {
+							...msg,
+							content: msg.content.slice(0, MAX_TOOL_RESULT_LENGTH) + "\n[truncated]",
+						} as ModelMessage;
+					}
+					return msg;
+				});
+
+				return [...trimmedMessages, { role: "assistant" as const, content: responseText }];
 			},
 		};
 	} catch (error) {

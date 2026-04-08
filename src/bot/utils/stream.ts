@@ -9,36 +9,55 @@ export class StarkFiStreamManager {
 	private ctx: BotContext;
 	private messageId: number | null = null;
 	private fullText = "";
+	private statusText = "";
 	private isEditing = false;
 	private pendingEdit = false;
 	private editCount = 0;
 	private isFinal = false;
+	private finalizeResolve: (() => void) | null = null;
+	private abortSignal?: AbortSignal;
 
-	constructor(ctx: BotContext) {
+	constructor(ctx: BotContext, abortSignal?: AbortSignal) {
 		this.ctx = ctx;
+		this.abortSignal = abortSignal;
 	}
 
 	async initialize() {
-		// Send initial status
-		const msg = await this.ctx.reply("> Processing...", { parse_mode: "HTML" });
+		const msg = await this.ctx.reply("<i>Processing...</i>", { parse_mode: "HTML" });
 		this.messageId = msg.message_id;
 	}
 
 	async appendChunk(chunk: string) {
+		if (this.abortSignal?.aborted) return;
 		this.fullText += chunk;
 		this.scheduleEdit();
 	}
 
 	/**
+	 * Updates the status line shown while the AI is working (e.g., tool call in progress).
+	 * Only visible when the stream has no text output yet.
+	 */
+	updateStatus(label: string) {
+		this.statusText = label;
+		if (!this.fullText.trim()) {
+			this.scheduleEdit();
+		}
+	}
+
+	/**
 	 * Should be called when the AI finishes generating entirely.
+	 * Returns a Promise that resolves after the final edit is delivered.
 	 */
 	async finalize() {
 		this.isFinal = true;
 
-		// If an edit is currently happening, we'll let it finish and trigger a final edit.
-		// Otherwise we just trigger it immediately.
 		if (!this.isEditing) {
 			await this.executeEdit();
+		} else {
+			// An edit is in flight — wait for it to finish, then it will trigger the final edit
+			await new Promise<void>((resolve) => {
+				this.finalizeResolve = resolve;
+			});
 		}
 	}
 
@@ -48,18 +67,21 @@ export class StarkFiStreamManager {
 			return;
 		}
 
-		// Implement batching to avoid spamming the edit API (Telegram rate limits)
-		// We use a small timeout to let chunks accumulate
 		this.isEditing = true;
 		setTimeout(() => {
 			this.executeEdit().catch((err) => {
 				logger.error("Stream update error", { error: String(err) });
 				this.isEditing = false;
 
-				// Retry if pending
 				if (this.pendingEdit && !this.isFinal) {
 					this.pendingEdit = false;
 					this.scheduleEdit();
+				}
+
+				// If we were waiting on finalize, resolve it even on error
+				if (this.isFinal && this.finalizeResolve) {
+					this.finalizeResolve();
+					this.finalizeResolve = null;
 				}
 			});
 		}, EDIT_DELAY_MS);
@@ -80,28 +102,19 @@ export class StarkFiStreamManager {
 		if (!this.messageId) return;
 
 		let textToRender = this.fullText.trim();
-		if (!textToRender) textToRender = "> Processing...";
-
-		// Add a typing indicator suffix if stream is still ongoing
-		if (!this.isFinal && !textToRender.endsWith("▌")) {
-			textToRender += " ▌";
+		if (!textToRender) {
+			// Show status text while AI is working but no text output yet
+			textToRender = this.statusText
+				? `<i>${this.statusText}...</i>`
+				: "<i>Processing...</i>";
 		}
 
-		// Sanitize to Telegram HTML and apply Magic Copy Interceptor
+		// Sanitize to Telegram HTML and apply address interception
 		const sanitizedHtml = sanitizeForTelegram(textToRender);
-
-		// Telegram max message length is 4096.
-		// If text is larger than 4096, we only want to edit the LAST chunk to show progress!
-		// But chunkMessage splits the entire text into multiple messages.
-		// For streaming, we'll just handle the first chunk. If it gets too long,
-		// we'll leave that logic to chunkMessage at the end.
-
-		// Wait, if it exceeds length, chunkMessage gives us chunks.
 		const chunks = chunkMessage(sanitizedHtml);
 
-		// For the live-streaming edits, we only update the LAST message chunk if we implement multi-message streaming.
-		// For simplicity, we stream into the first message until full,
-		// and at the VERY END, we split and send new messages for remaining chunks.
+		// During streaming, edit only the first message chunk.
+		// On finalize, send remaining chunks as new messages.
 		const currentDisplayChunk = chunks[0];
 
 		try {
@@ -110,21 +123,35 @@ export class StarkFiStreamManager {
 			this.isEditing = false;
 			this.editCount++;
 
-			// If there's new text waiting, immediately schedule the next edit
 			if (this.pendingEdit && !this.isFinal) {
 				this.pendingEdit = false;
 				this.scheduleEdit();
-			} else if (this.isFinal && chunks.length > 1) {
-				// If we have finalized and there's more than 1 chunk, we need to send the extra chunks
-				for (let i = 1; i < chunks.length; i++) {
-					try {
-						await this.ctx.reply(chunks[i], { parse_mode: "HTML" });
-					} catch (e) {
-						logger.warn("Failed to send chunk with HTML mode, falling back", {
-							error: e,
-						});
-						await this.ctx.reply(chunks[i]);
+			} else if (this.isFinal) {
+				// Deliver remaining chunks if message was too long
+				if (chunks.length > 1) {
+					for (let i = 1; i < chunks.length; i++) {
+						try {
+							await this.ctx.reply(chunks[i], { parse_mode: "HTML" });
+						} catch (e) {
+							logger.warn("Failed to send chunk with HTML, falling back", {
+								error: e,
+							});
+							await this.ctx.reply(chunks[i]);
+						}
 					}
+				}
+
+				// If there's still a pending edit (text arrived between last batch and finalize),
+				// do one more pass, then resolve
+				if (this.pendingEdit) {
+					this.pendingEdit = false;
+					await this.executeEdit();
+				}
+
+				// Resolve the finalize() promise
+				if (this.finalizeResolve) {
+					this.finalizeResolve();
+					this.finalizeResolve = null;
 				}
 			}
 		}
