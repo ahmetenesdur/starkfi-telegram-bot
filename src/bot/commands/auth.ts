@@ -14,7 +14,8 @@ export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 		ctx.store.setAuthState(userId, JSON.stringify({ step: "awaiting_email" }));
 
 		await ctx.reply(
-			"<b>StarkFi Login</b>\n\n" + "Enter the email address associated with your StarkFi account:",
+			"<b>StarkFi Login</b>\n\n" +
+				"Enter the email address associated with your StarkFi account:",
 			{ parse_mode: "HTML" }
 		);
 	};
@@ -68,8 +69,7 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 
 			await mcpPool.removeClient(userId);
 
-			const shortAddr = `${auth.walletAddress.slice(0, 6)}...${auth.walletAddress.slice(-4)}`;
-			const walletLine = `<code><a href="tg://copy?text=${auth.walletAddress}">${shortAddr}</a></code>`;
+			const walletLine = `<code>${auth.walletAddress}</code>`;
 
 			await ctx.reply(
 				"<b>Logged In</b>\n\n" +

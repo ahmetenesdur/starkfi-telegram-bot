@@ -17,12 +17,9 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 			return;
 		}
 
-		let walletLine = "Not connected (/auth)";
-		if (session.starkfiAddr) {
-			const addr = session.starkfiAddr;
-			const shortAddr = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-			walletLine = `<code><a href="tg://copy?text=${addr}">${shortAddr}</a></code>`;
-		}
+		const walletLine = session.starkfiAddr
+			? `<code>${session.starkfiAddr}</code>`
+			: "Not connected (/auth)";
 
 		const models = MODEL_OPTIONS[session.provider];
 		const modelLabel =
@@ -35,16 +32,16 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 				`Wallet: ${walletLine}\n` +
 				`History: ${session.history.length} messages\n` +
 				`Active MCP: ${mcpPool.activeCount} processes`,
-			{ 
+			{
 				parse_mode: "HTML",
 				reply_markup: {
 					inline_keyboard: [
 						[
 							{ text: "[ Authenticate ]", callback_data: "cmd_auth" },
-							{ text: "[ Change Model ]", callback_data: "cmd_model" }
-						]
-					]
-				}
+							{ text: "[ Change Model ]", callback_data: "cmd_model" },
+						],
+					],
+				},
 			}
 		);
 	};

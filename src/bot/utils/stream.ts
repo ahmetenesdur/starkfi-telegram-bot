@@ -34,7 +34,7 @@ export class StarkFiStreamManager {
 	 */
 	async finalize() {
 		this.isFinal = true;
-		
+
 		// If an edit is currently happening, we'll let it finish and trigger a final edit.
 		// Otherwise we just trigger it immediately.
 		if (!this.isEditing) {
@@ -52,10 +52,10 @@ export class StarkFiStreamManager {
 		// We use a small timeout to let chunks accumulate
 		this.isEditing = true;
 		setTimeout(() => {
-			this.executeEdit().catch(err => {
+			this.executeEdit().catch((err) => {
 				logger.error("Stream update error", { error: String(err) });
 				this.isEditing = false;
-				
+
 				// Retry if pending
 				if (this.pendingEdit && !this.isFinal) {
 					this.pendingEdit = false;
@@ -65,9 +65,9 @@ export class StarkFiStreamManager {
 		}, EDIT_DELAY_MS);
 	}
 
-    /**
-     * Replaces the old typing indicator method. 
-     */
+	/**
+	 * Replaces the old typing indicator method.
+	 */
 	async refreshTypingStatus() {
 		try {
 			await this.ctx.sendChatAction("typing");
@@ -89,18 +89,18 @@ export class StarkFiStreamManager {
 
 		// Sanitize to Telegram HTML and apply Magic Copy Interceptor
 		const sanitizedHtml = sanitizeForTelegram(textToRender);
-		
-		// Telegram max message length is 4096. 
+
+		// Telegram max message length is 4096.
 		// If text is larger than 4096, we only want to edit the LAST chunk to show progress!
 		// But chunkMessage splits the entire text into multiple messages.
 		// For streaming, we'll just handle the first chunk. If it gets too long,
 		// we'll leave that logic to chunkMessage at the end.
-		
+
 		// Wait, if it exceeds length, chunkMessage gives us chunks.
 		const chunks = chunkMessage(sanitizedHtml);
-        
+
 		// For the live-streaming edits, we only update the LAST message chunk if we implement multi-message streaming.
-		// For simplicity, we stream into the first message until full, 
+		// For simplicity, we stream into the first message until full,
 		// and at the VERY END, we split and send new messages for remaining chunks.
 		const currentDisplayChunk = chunks[0];
 
@@ -120,7 +120,9 @@ export class StarkFiStreamManager {
 					try {
 						await this.ctx.reply(chunks[i], { parse_mode: "HTML" });
 					} catch (e) {
-						logger.warn("Failed to send chunk with HTML mode, falling back", { error: e });
+						logger.warn("Failed to send chunk with HTML mode, falling back", {
+							error: e,
+						});
 						await this.ctx.reply(chunks[i]);
 					}
 				}
@@ -143,7 +145,10 @@ export class StarkFiStreamManager {
 				);
 				return;
 			} catch (err: unknown) {
-				const error = err as Error & { code?: number; parameters?: { retry_after?: number } };
+				const error = err as Error & {
+					code?: number;
+					parameters?: { retry_after?: number };
+				};
 				// If the text is the same (Telegram throws a specific error if message content is not modified)
 				if (error.message?.includes("message is not modified")) {
 					return;
@@ -158,19 +163,19 @@ export class StarkFiStreamManager {
 				}
 
 				// If the chunk failed to parse (maybe tags unbalanced during live stream)
-                // Fall back to plain text
+				// Fall back to plain text
 				if (error.message?.includes("can't parse entities")) {
-                    await this.ctx.telegram.editMessageText(
-                        this.ctx.chat?.id,
-                        this.messageId!,
-                        undefined,
-                        // strip HTML tags as last resort
-                        text.replace(/<[^>]*>?/gm, ''), 
-                        { parse_mode: undefined }
-                    );
-                    return;
-                }
-				
+					await this.ctx.telegram.editMessageText(
+						this.ctx.chat?.id,
+						this.messageId!,
+						undefined,
+						// strip HTML tags as last resort
+						text.replace(/<[^>]*>?/gm, ""),
+						{ parse_mode: undefined }
+					);
+					return;
+				}
+
 				throw error;
 			}
 		}

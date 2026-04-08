@@ -59,9 +59,12 @@ export function createInteractionHandlers(
 
 		ctx.store.updateModelName(userId, modelId);
 
-		await ctx.editMessageText(`<b>Model Updated</b>\n\n` + `Now using: <code>${model.label}</code>`, {
-			parse_mode: "HTML",
-		});
+		await ctx.editMessageText(
+			`<b>Model Updated</b>\n\n` + `Now using: <code>${model.label}</code>`,
+			{
+				parse_mode: "HTML",
+			}
+		);
 	}
 
 	async function handleCallback(ctx: BotContext): Promise<void> {

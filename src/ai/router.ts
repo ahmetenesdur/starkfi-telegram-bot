@@ -34,7 +34,7 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 	});
 
 	try {
-		const result = await streamText({
+		const result = streamText({
 			model,
 			tools,
 			system: SYSTEM_PROMPT,
@@ -62,11 +62,12 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 		return {
 			textStream: result.textStream,
 			getFinalHistory: async () => {
-				const responseText = (await result.text) || "I completed the operation but have no additional output.";
+				const responseText =
+					(await result.text) ||
+					"I completed the operation but have no additional output.";
 				return [...messages, { role: "assistant", content: responseText }];
-			}
+			},
 		};
-
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : String(error);
 		const lowerMsg = errorMsg.toLowerCase();

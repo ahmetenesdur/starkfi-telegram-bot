@@ -58,7 +58,6 @@ export function createMessageHandler(
 				// The stream has successfully finished, grab the final processed history
 				const history = await streamResult.getFinalHistory();
 				ctx.store.updateHistory(userId, history, config.maxHistory);
-
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
