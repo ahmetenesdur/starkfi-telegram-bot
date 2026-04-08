@@ -30,8 +30,3 @@ export function chunkMessage(text: string): string[] {
 
 	return chunks;
 }
-
-export function truncateAddress(address: string): string {
-	if (address.length <= 14) return address;
-	return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}

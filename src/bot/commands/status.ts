@@ -1,6 +1,5 @@
 import type { BotContext } from "../middleware/session.js";
 import { MODEL_OPTIONS, PROVIDER_LABELS } from "../../session/types.js";
-import { truncateAddress } from "../../lib/format.js";
 import type { McpProcessPool } from "../../mcp/pool.js";
 
 export function createStatusCommand(mcpPool: McpProcessPool) {
@@ -19,7 +18,7 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 		}
 
 		const walletLine = session.starkfiAddr
-			? `\`${truncateAddress(session.starkfiAddr)}\``
+			? `\`${session.starkfiAddr}\``
 			: "Not connected (/auth)";
 
 		const models = MODEL_OPTIONS[session.provider];
