@@ -3,14 +3,14 @@ import type { BotContext } from "../middleware/session.js";
 
 export async function aboutCommand(ctx: BotContext): Promise<void> {
 	await ctx.reply(
-		"*About StarkFi*\n\n" +
-			"StarkFi is the AI-native DeFi toolkit for *Starknet*, " +
+		"<b>About StarkFi</b>\n\n" +
+			"StarkFi is the AI-native DeFi toolkit for <b>Starknet</b>, " +
 			"powered by the Starkzap SDK.\n\n" +
-			"*What it includes:*\n" +
+			"<b>What it includes:</b>\n" +
 			"• CLI with 42+ commands across 12 groups\n" +
 			"• MCP server with 42 tools for AI agents\n" +
 			"• 12 agent skills for autonomous DeFi workflows\n\n" +
-			"*Key capabilities:*\n" +
+			"<b>Key capabilities:</b>\n" +
 			"• DEX-aggregated swaps via Fibrous\n" +
 			"• Multi-token swaps in a single transaction\n" +
 			"• Multi-token staking across validators\n" +
@@ -28,7 +28,7 @@ export async function aboutCommand(ctx: BotContext): Promise<void> {
 			"This bot is a live example of what you can build with " +
 			"StarkFi's MCP server.",
 		{
-			parse_mode: "Markdown",
+			parse_mode: "HTML",
 			...Markup.inlineKeyboard([
 				[
 					Markup.button.url("Website", "https://starkfi.app"),

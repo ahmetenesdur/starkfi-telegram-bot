@@ -3,7 +3,7 @@ import type { McpProcessPool } from "../../mcp/pool.js";
 import type { MessageQueue } from "../middleware/queue.js";
 import type { Config } from "../../lib/config.js";
 import { processMessage } from "../../ai/router.js";
-import { chunkMessage, sanitizeForTelegram } from "../../lib/format.js";
+import { StarkFiStreamManager } from "../utils/stream.js";
 import { logger } from "../../lib/logger.js";
 
 export function createMessageHandler(
@@ -24,17 +24,15 @@ export function createMessageHandler(
 		await messageQueue.enqueue(userId, async () => {
 			await ctx.sendChatAction("typing");
 
-			const typingInterval = setInterval(() => {
-				ctx.sendChatAction("typing").catch(() => {
-					/* ignore — best-effort */
-				});
-			}, 4_000);
-
 			try {
 				const apiKey = ctx.store.decryptApiKey(session, ctx.encryptionSecret);
 				const { tools } = await mcpPool.getClient(userId);
 
-				const result = await processMessage({
+				// Initialize Real-Time Stream Manager
+				const streamManager = new StarkFiStreamManager(ctx);
+				await streamManager.initialize();
+
+				const streamResult = await processMessage({
 					provider: session.provider,
 					apiKey,
 					modelName: session.modelName,
@@ -43,24 +41,28 @@ export function createMessageHandler(
 					tools,
 				});
 
-				ctx.store.updateHistory(userId, result.history, config.maxHistory);
+				// Continuously update the typing indicator outside of the edit loop
+				const typingInterval = setInterval(() => {
+					streamManager.refreshTypingStatus();
+				}, 4000);
 
-				const sanitized = sanitizeForTelegram(result.text);
-				const chunks = chunkMessage(sanitized);
-				for (const chunk of chunks) {
-					try {
-						await ctx.reply(chunk, { parse_mode: "Markdown" });
-					} catch {
-						await ctx.reply(chunk);
+				try {
+					for await (const chunk of streamResult.textStream) {
+						await streamManager.appendChunk(chunk);
 					}
+				} finally {
+					clearInterval(typingInterval);
+					await streamManager.finalize();
 				}
+
+				// The stream has successfully finished, grab the final processed history
+				const history = await streamResult.getFinalHistory();
+				ctx.store.updateHistory(userId, history, config.maxHistory);
+
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
-
-				await ctx.reply(errorMsg);
-			} finally {
-				clearInterval(typingInterval);
+				await ctx.reply(`❌ <b>Hata:</b> ${errorMsg}`, { parse_mode: "HTML" });
 			}
 		});
 	};

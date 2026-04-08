@@ -24,13 +24,13 @@ export async function modelCommand(ctx: BotContext): Promise<void> {
 	];
 
 	await ctx.reply(
-		`*Switch Model*\n\n` +
-			`Current: *${PROVIDER_LABELS[provider]}* — \`${currentModel?.label ?? session.modelName}\`\n\n` +
+		`<b>Switch Model</b>\n\n` +
+			`Current: <b>${PROVIDER_LABELS[provider]}</b> — <code>${currentModel?.label ?? session.modelName}</code>\n\n` +
 			(modelButtons.length > 0
 				? "Choose a different model:"
 				: "No other models available for this provider."),
 		{
-			parse_mode: "Markdown",
+			parse_mode: "HTML",
 			...Markup.inlineKeyboard([...modelButtons, changeProviderRow]),
 		}
 	);

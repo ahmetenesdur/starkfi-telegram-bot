@@ -14,8 +14,8 @@ export function createAuthCommand(_config: Config, _mcpPool: McpProcessPool) {
 		ctx.store.setAuthState(userId, JSON.stringify({ step: "awaiting_email" }));
 
 		await ctx.reply(
-			"*StarkFi Login*\n\n" + "Enter the email address associated with your StarkFi account:",
-			{ parse_mode: "Markdown" }
+			"<b>StarkFi Login</b>\n\n" + "Enter the email address associated with your StarkFi account:",
+			{ parse_mode: "HTML" }
 		);
 	};
 }
@@ -37,9 +37,9 @@ export function createEmailHandler(config: Config) {
 			);
 
 			await ctx.reply(
-				`Verification code sent to *${email}*.\n\n` +
+				`Verification code sent to <b>${email}</b>.\n\n` +
 					"Enter the 6-digit code from your inbox:",
-				{ parse_mode: "Markdown" }
+				{ parse_mode: "HTML" }
 			);
 		} catch (error) {
 			ctx.store.clearAuthState(userId);
@@ -68,12 +68,15 @@ export function createOtpHandler(config: Config, mcpPool: McpProcessPool, dataDi
 
 			await mcpPool.removeClient(userId);
 
+			const shortAddr = `${auth.walletAddress.slice(0, 6)}...${auth.walletAddress.slice(-4)}`;
+			const walletLine = `<code><a href="tg://copy?text=${auth.walletAddress}">${shortAddr}</a></code>`;
+
 			await ctx.reply(
-				"*Logged In*\n\n" +
-					`Address: \`${auth.walletAddress}\`\n` +
+				"<b>Logged In</b>\n\n" +
+					`Address: ${walletLine}\n` +
 					"Network: mainnet\n\n" +
-					"You're all set! Try _\"What's my balance?\"_",
-				{ parse_mode: "Markdown" }
+					"You're all set! Try <i>\"What's my balance?\"</i>",
+				{ parse_mode: "HTML" }
 			);
 		} catch (error) {
 			ctx.store.clearAuthState(userId);

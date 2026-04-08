@@ -1,4 +1,4 @@
-import { generateText, stepCountIs, type ModelMessage } from "ai";
+import { streamText, stepCountIs, type ModelMessage } from "ai";
 import { createModel } from "./providers.js";
 import { SYSTEM_PROMPT } from "./system-prompt.js";
 import { PROVIDER_LABELS, type Provider } from "../session/types.js";
@@ -15,8 +15,8 @@ export interface RouterInput {
 }
 
 export interface RouterResult {
-	text: string;
-	history: ModelMessage[];
+	textStream: AsyncIterable<string>;
+	getFinalHistory: () => Promise<ModelMessage[]>;
 }
 
 export async function processMessage(input: RouterInput): Promise<RouterResult> {
@@ -34,7 +34,7 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 	});
 
 	try {
-		const result = await generateText({
+		const result = await streamText({
 			model,
 			tools,
 			system: SYSTEM_PROMPT,
@@ -42,36 +42,31 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			stopWhen: stepCountIs(10),
 
 			onStepFinish({ stepNumber, finishReason, usage }) {
-				logger.debug("AI step completed", {
-					step: stepNumber,
+				logger.debug("AI step stream completed", {
+					stepNumber,
 					reason: finishReason,
 					tokens: usage.totalTokens,
 				});
 			},
 
 			experimental_onToolCallFinish({ toolCall, durationMs }) {
-				logger.debug("Tool call completed", {
+				logger.debug("Tool call stream completed", {
 					toolName: toolCall.toolName,
 					durationMs,
 				});
 			},
 		});
 
-		const responseText =
-			result.text || "I completed the operation but have no additional output.";
+		// By returning the result object, the caller can iterate `result.textStream`
+		// and once finished, they can await `result.text` to get the final history.
+		return {
+			textStream: result.textStream,
+			getFinalHistory: async () => {
+				const responseText = (await result.text) || "I completed the operation but have no additional output.";
+				return [...messages, { role: "assistant", content: responseText }];
+			}
+		};
 
-		const updatedHistory: ModelMessage[] = [
-			...messages,
-			{ role: "assistant", content: responseText },
-		];
-
-		logger.debug("AI response", {
-			provider,
-			steps: result.steps.length,
-			responseLength: responseText.length,
-		});
-
-		return { text: responseText, history: updatedHistory };
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : String(error);
 		const lowerMsg = errorMsg.toLowerCase();

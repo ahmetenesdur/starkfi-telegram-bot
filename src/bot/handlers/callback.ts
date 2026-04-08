@@ -59,8 +59,8 @@ export function createInteractionHandlers(
 
 		ctx.store.updateModelName(userId, modelId);
 
-		await ctx.editMessageText(`*Model Updated*\n\n` + `Now using: \`${model.label}\``, {
-			parse_mode: "Markdown",
+		await ctx.editMessageText(`<b>Model Updated</b>\n\n` + `Now using: <code>${model.label}</code>`, {
+			parse_mode: "HTML",
 		});
 	}
 
