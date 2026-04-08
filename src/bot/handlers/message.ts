@@ -62,7 +62,7 @@ export function createMessageHandler(
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : String(error);
 				logger.error("Message processing failed", { userId, error: errorMsg });
-				await ctx.reply(`❌ <b>Hata:</b> ${errorMsg}`, { parse_mode: "HTML" });
+				await ctx.reply(`<b>[Error]:</b> ${errorMsg}`, { parse_mode: "HTML" });
 			}
 		});
 	};

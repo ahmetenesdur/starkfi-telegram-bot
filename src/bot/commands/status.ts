@@ -40,8 +40,8 @@ export function createStatusCommand(mcpPool: McpProcessPool) {
 				reply_markup: {
 					inline_keyboard: [
 						[
-							{ text: "🔑 Authenticate", callback_data: "cmd_auth" },
-							{ text: "🤖 Change Model", callback_data: "cmd_model" }
+							{ text: "[ Authenticate ]", callback_data: "cmd_auth" },
+							{ text: "[ Change Model ]", callback_data: "cmd_model" }
 						]
 					]
 				}

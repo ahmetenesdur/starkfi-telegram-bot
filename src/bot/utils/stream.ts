@@ -20,7 +20,7 @@ export class StarkFiStreamManager {
 
 	async initialize() {
 		// Send initial status
-		const msg = await this.ctx.reply("🤔 Düşünüyor...", { parse_mode: "HTML" });
+		const msg = await this.ctx.reply("> Processing...", { parse_mode: "HTML" });
 		this.messageId = msg.message_id;
 	}
 
@@ -80,7 +80,7 @@ export class StarkFiStreamManager {
 		if (!this.messageId) return;
 
 		let textToRender = this.fullText.trim();
-		if (!textToRender) textToRender = "🤔 Düşünüyor...";
+		if (!textToRender) textToRender = "> Processing...";
 
 		// Add a typing indicator suffix if stream is still ongoing
 		if (!this.isFinal && !textToRender.endsWith("▌")) {
