@@ -116,7 +116,7 @@ function interceptAddresses(html: string): string {
 	// We only want to replace addresses that are NOT already inside code tags
 	const parts: string[] = [];
 	let cursor = 0;
-	const codeBlockRegex = /<(?:code|pre)[^>]*>[\s\S]*?<\/(?:code|pre)>/gi;
+	const codeBlockRegex = /<(?:code|pre|a)[^>]*>[\s\S]*?<\/(?:code|pre|a)>/gi;
 
 	let match: RegExpExecArray | null;
 	while ((match = codeBlockRegex.exec(html)) !== null) {
