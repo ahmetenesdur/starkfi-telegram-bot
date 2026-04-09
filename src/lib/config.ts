@@ -1,13 +1,12 @@
 import { z } from "zod";
 
+export const ENCRYPTION_SECRET_REGEX = /^[0-9a-f]{64}$/i;
+export const ENCRYPTION_SECRET_ERROR =
+	"BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)";
+
 const configSchema = z.object({
 	telegramBotToken: z.string().min(1, "TELEGRAM_BOT_TOKEN is required"),
-	encryptionSecret: z
-		.string()
-		.regex(
-			/^[0-9a-f]{64}$/i,
-			"BOT_ENCRYPTION_SECRET must be a 64-character hex string (32 bytes)"
-		),
+	encryptionSecret: z.string().regex(ENCRYPTION_SECRET_REGEX, ENCRYPTION_SECRET_ERROR),
 	starkfiServerUrl: z.string().url("STARKFI_SERVER_URL must be a valid URL"),
 	mcpCommand: z.string().default("npx"),
 	mcpArgs: z.array(z.string()).default(["-y", "starkfi@latest", "mcp-start"]),
