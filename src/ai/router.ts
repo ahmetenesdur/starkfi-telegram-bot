@@ -157,6 +157,9 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			statusCode === 403 ||
 			lowerMsg.includes("unauthorized") ||
 			lowerMsg.includes("invalid api key") ||
+			lowerMsg.includes("invalid x-api-key") ||
+			lowerMsg.includes("api-key") ||
+			lowerMsg.includes("authentication_error") ||
 			lowerMsg.includes("permission denied") ||
 			lowerMsg.includes("api key not valid")
 		) {
