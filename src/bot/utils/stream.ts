@@ -5,6 +5,12 @@ import { logger } from "../../lib/logger.js";
 
 const EDIT_DELAY_MS = 600;
 
+// Template emojis used in system prompt templates.
+// Any text appearing BEFORE the first occurrence of one of these is considered
+// conversational filler (e.g., "Let me fetch...") and will be stripped.
+const TEMPLATE_EMOJI_REGEX =
+	/\u{1F4B3}|\u{1F50D}|\u{2705}|\u{26A0}\u{FE0F}?|\u{1F4B0}|\u{1F969}|\u{26A1}\u{FE0F}?|\u{1F680}|\u{1F3E6}|\u{1F4CA}|\u{1FA69}|\u{1F517}/u;
+
 export class StarkFiStreamManager {
 	private ctx: BotContext;
 	private messageId: number | null = null;
@@ -98,10 +104,20 @@ export class StarkFiStreamManager {
 		}
 	}
 
+	// Strips conversational preamble text that appears before the first template emoji.
+	// Example: "Let me fetch your balances! 💰 Balances" → "💰 Balances"
+	private stripPreamble(text: string): string {
+		const match = TEMPLATE_EMOJI_REGEX.exec(text);
+		if (match && match.index > 0) {
+			return text.slice(match.index);
+		}
+		return text;
+	}
+
 	private async executeEdit() {
 		if (!this.messageId) return;
 
-		let textToRender = this.fullText.trim();
+		let textToRender = this.stripPreamble(this.fullText.trim());
 		if (!textToRender) {
 			// Show status text while AI is working but no text output yet
 			textToRender = this.statusText
@@ -168,7 +184,7 @@ export class StarkFiStreamManager {
 					this.messageId!,
 					undefined,
 					text,
-					{ parse_mode: "HTML" }
+					{ parse_mode: "HTML", link_preview_options: { is_disabled: true } }
 				);
 				return;
 			} catch (err: unknown) {
