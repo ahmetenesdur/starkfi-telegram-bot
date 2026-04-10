@@ -77,7 +77,7 @@ export function createMessageHandler(
 
 				// Contextual error response with inline keyboard
 				const buttons = getErrorButtons(errorMsg);
-				await ctx.reply(`<b>[Error]:</b> ${escapeHtml(errorMsg)}`, {
+				await ctx.reply(`⚠️ <b>Error</b>\n\n• <b>Reason:</b> ${escapeHtml(errorMsg)}`, {
 					parse_mode: "HTML",
 					...(buttons.length > 0 ? Markup.inlineKeyboard(buttons.map((b) => [b])) : {}),
 				});
@@ -95,7 +95,7 @@ function escapeHtml(text: string): string {
 function getErrorButtons(errorMsg: string) {
 	const lower = errorMsg.toLowerCase();
 
-	if (lower.includes("api key") || lower.includes("/setup")) {
+	if (lower.includes("api key") || lower.includes("/setup") || lower.includes("empty response")) {
 		return [Markup.button.callback("Setup AI Model", "action:setup")];
 	}
 

@@ -237,6 +237,19 @@ export async function processMessage(input: RouterInput): Promise<RouterResult> 
 			);
 		}
 
+		// Empty model output — typically caused by an invalid/expired API key
+		// or the provider silently rejecting the request without a proper error code.
+		if (
+			lowerMsg.includes("model output") ||
+			lowerMsg.includes("empty response") ||
+			lowerMsg.includes("both be empty")
+		) {
+			throw new Error(
+				"The AI model returned an empty response. This usually means your API key is invalid or expired. Use /setup to configure a new key.",
+				{ cause: error }
+			);
+		}
+
 		throw new Error(
 			`${label} request failed. Please try again. If the problem persists, try /model to switch models.`,
 			{ cause: error }
