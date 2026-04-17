@@ -33,6 +33,10 @@ export class StarkFiStreamManager {
 		this.messageId = msg.message_id;
 	}
 
+	getMessageId(): number | null {
+		return this.messageId;
+	}
+
 	async appendChunk(chunk: string) {
 		if (this.abortSignal?.aborted) return;
 		this.fullText += chunk;
