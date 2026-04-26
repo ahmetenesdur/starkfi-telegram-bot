@@ -19,7 +19,10 @@ export async function helpCommand(ctx: BotContext): Promise<void> {
 			'• Portfolio — <i>"Show my portfolio"</i>\n' +
 			'• Portfolio rebalance — <i>"Rebalance to 50% ETH, 30% USDC, 20% STRK"</i>\n' +
 			'• Staking — <i>"Stake 100 STRK on Karnot"</i>\n' +
+			'• Liquid staking — <i>"Liquid stake 500 STRK via Endur"</i>\n' +
 			'• Compound rewards — <i>"Compound my staking rewards"</i>\n' +
+			'• Vault strategies — <i>"Show vault strategies"</i>\n' +
+			'• Vault deposit — <i>"Deposit 100 STRK to Evergreen vault"</i>\n' +
 			'• Lending — <i>"Supply 0.5 ETH on Vesu"</i>\n' +
 			'• Borrow/Repay — <i>"Borrow 100 USDC and swap to STRK"</i>\n' +
 			'• Lending monitor — <i>"Check my lending health"</i>\n' +
