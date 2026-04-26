@@ -36,6 +36,17 @@ const TOOL_LABELS: Record<string, string> = {
 	confidential_transfer: "Sending confidential transfer",
 	confidential_withdraw: "Withdrawing from confidential",
 	deploy_account: "Deploying account",
+	// Troves — DeFi Yield Vaults
+	list_troves_strategies: "Browsing vault strategies",
+	get_troves_position: "Checking vault position",
+	troves_deposit: "Depositing to vault",
+	troves_withdraw: "Withdrawing from vault",
+	// LST — Endur Liquid Staking
+	get_lst_position: "Checking LST position",
+	get_lst_stats: "Fetching LST stats",
+	lst_stake: "Staking via Endur",
+	lst_redeem: "Redeeming LST",
+	lst_exit_all: "Exiting all LST",
 };
 
 export interface RouterInput {
