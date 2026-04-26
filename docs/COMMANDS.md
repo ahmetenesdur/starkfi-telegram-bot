@@ -45,6 +45,12 @@ After setup and auth, send messages in any language. The AI handles the rest.
 | "What's my balance?"                             | Returns token balances with USD values                  |
 | "Swap 0.1 ETH to USDC"                          | Gets a quote, asks for confirmation, executes           |
 | "Stake 100 STRK"                                 | Lists validators, user picks one, stakes                |
+| "Liquid stake 500 STRK via Endur"                | Stakes STRK → xSTRK with auto-yield via share price    |
+| "Show my xSTRK position"                         | Shows xSTRK balance, STRK equivalent, and yield growth  |
+| "Redeem 200 xSTRK"                               | Redeems xSTRK back to STRK                              |
+| "Show vault strategies"                          | Lists Troves strategies with APY and risk factor         |
+| "Deposit 100 STRK to Evergreen vault"            | Previews strategy, confirms, deposits to vault           |
+| "Withdraw from my vault position"                | Shows current position, confirms, withdraws              |
 | "Supply 0.5 ETH on Vesu"                         | Lists lending pools, user picks one, supplies           |
 | "Borrow 100 USDC and swap to STRK"               | Batch operation combining lending borrow and token swap |
 | "Repay my STRK debt"                             | Repays open borrow positions on the specified asset     |
@@ -66,5 +72,5 @@ After setup and auth, send messages in any language. The AI handles the rest.
 
 - **[Architecture](ARCHITECTURE.md)** — System design, data flow, AI error handling
 - **[StarkFi CLI Reference](https://docs.starkfi.app/docs/cli)** — Full CLI command reference
-- **[MCP Tools](https://docs.starkfi.app/docs/mcp)** — The 42 MCP tools the bot uses internally
+- **[MCP Tools](https://docs.starkfi.app/docs/mcp)** — The 51 MCP tools the bot uses internally
 
