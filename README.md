@@ -1,6 +1,6 @@
 # StarkFi Telegram Bot
 
-AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Each user brings their own AI model and API key — no shared keys, no centralized billing.
+AI-powered Telegram bot for [StarkFi](https://starkfi.app) DeFi on Starknet. Swap, stake, lend, batch, DCA, vault strategies, liquid staking, and confidential transfers — all through natural conversation. Each user brings their own AI model and API key — no shared keys, no centralized billing.
 
 ## How It Works
 
@@ -15,12 +15,14 @@ Each user gets a dedicated MCP child process with isolated credentials. No cross
 | Feature | Description |
 | --- | --- |
 | **Swap** | Token trading via Fibrous, AVNU, or Ekubo (`--provider auto` races all) |
-| **Stake** | Multi-token staking (STRK, WBTC, tBTC, SolvBTC, LBTC) |
+| **Stake** | Delegation staking (STRK, WBTC, tBTC, SolvBTC, LBTC) across validators |
+| **Liquid Stake** | Endur liquid staking — stake STRK → xSTRK (auto-yield via share price) |
+| **Troves** | DeFi yield vaults — list strategies, deposit, withdraw, check positions |
 | **Lend** | Supply, borrow, repay, withdraw, close, monitor, auto-rebalance on Vesu V2 |
 | **DCA** | Recurring buy orders via AVNU and Ekubo |
 | **Confidential** | Privacy-preserving transfers via Tongo Cash (ZK proofs) |
-| **Batch** | Combine swap + stake + lend + send + DCA in one atomic transaction |
-| **Portfolio** | Balances with USD values, staking positions, lending health |
+| **Batch** | Combine swap + stake + lend + send + DCA + troves in one atomic transaction |
+| **Portfolio** | Balances with USD values, staking, lending, vault, and LST positions |
 | **Gas Modes** | Gasless (pay in ERC-20) and gasfree (developer-sponsored) |
 
 ## Bot Commands
